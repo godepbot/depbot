@@ -1,3 +1,6 @@
+![Depbot Logo](logo_light.png#gh-dark-mode-only)
+![Depbot Logo](logo.png#gh-light-mode-only)
+
 # Depbot
 
 Depbot is a CLI tool that identifies dependencies in a given source code repository. It aims to support multiple dependency management systems and multiple languages.
