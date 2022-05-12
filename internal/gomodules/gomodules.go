@@ -1,5 +1,5 @@
-// package gomod does the analysis of Go modules and returns its findings.
-package gomod
+// package gomodules does the analysis of Go modules and returns its findings.
+package gomodules
 
 import "github.com/godepbot/depbot"
 
