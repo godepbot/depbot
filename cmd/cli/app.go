@@ -15,9 +15,9 @@ func (app *App) Main(ctx context.Context, pwd string, args []string) error {
 		return fmt.Errorf("app is nil")
 	}
 
-	// if len(args) == 0 {
-	// 	return app.Usage(app.Stdout())
-	// }
+	if len(args) > 0 {
+		return app.Usage(app.Stdout())
+	}
 
 	// if app.Commands == nil {
 	// 	app.Commands = map[string]Commander{}
