@@ -1,5 +1,5 @@
-// package gomod does the analysis of Go modules and returns its findings.
-package gomod
+// package gomodules does the analysis of Go modules and returns its findings.
+package gomodules
 
 import "github.com/godepbot/depbot"
 
@@ -9,22 +9,20 @@ func FindDependencies(wd string) ([]depbot.Dependency, error) {
 	return []depbot.Dependency{}, nil
 }
 
+// d, err := os.TempDir()
+// Write go.mod en directory
+// Write package/go.mod
+// Write package/p2/go.mod
+// Check if no go.mod
+//
 // import (
-// 	"depbot/app/models"
 // 	"fmt"
 // 	"io/ioutil"
 // 	"path/filepath"
-
+//
 // 	"golang.org/x/mod/modfile"
 // )
-
-// // CanParse a path file, returns true if the file
-// // can be parsed by the Parse method, this is useful
-// // when looking at a directory for dependency files.
-// func CanParse(path string) bool {
-// 	return filepath.Base(path) == "go.mod"
-// }
-
+//
 // func Parse(path string) ([]models.Dependency, error) {
 // 	file, err := ioutil.ReadFile(path)
 // 	if err != nil {
@@ -43,7 +41,7 @@ func FindDependencies(wd string) ([]depbot.Dependency, error) {
 // 				Name:     req.Mod.Path,
 // 				Language: models.LanguageGo,
 // 			},
-
+//
 // 			Version: req.Mod.Version,
 // 			Source:  path,
 // 		}

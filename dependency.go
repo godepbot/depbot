@@ -21,3 +21,9 @@ type Dependency struct {
 	// Whether the dependency is direct or transitive.
 	Direct bool
 }
+
+type Dependencies []Dependency
+
+func (d Dependencies) Languages() Dependencies {
+	return Dependencies{}
+}
