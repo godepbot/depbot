@@ -34,6 +34,9 @@ And that will list the dependencies found in current directory and bellow.
 ## Options
 
 [TODO] Document options
+```bash
+DEPBOT_API_KEY=xxxxx DEPBOT_SERVER_HOST=xxxxx depbot --sync
+```
 
 ## Running in development
 
