@@ -37,7 +37,7 @@ And that will list the dependencies found in current directory and bellow.
 
 ## Running in development
 
-Assuming you have Go installed in your machine you can invoke the depbot command by running:
+Assuming you have Go installed in your machine you can invoke the Depbot command by running:
 
 ```bash
 $ go run ./cmd/depbot
