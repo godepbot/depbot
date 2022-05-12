@@ -12,7 +12,7 @@ Depbot is a CLI tool that identifies dependencies in a given source code reposit
 To install depbot, run:
 
 ```bash
-$ go install github.com/dep-bot/depbot/cmd/depbot@latest
+$ go install github.com/godepbot/depbot/cmd/depbot@latest
 ```
 
 Or download the appropriate binary from the releases page.
