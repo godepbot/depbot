@@ -7,7 +7,7 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/depbot/depbot/cmd/cli"
+	"github.com/godepbot/depbot/cmd/cli"
 )
 
 func main() {
