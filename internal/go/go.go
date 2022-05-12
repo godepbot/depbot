@@ -1,4 +1,13 @@
-package parser
+// package gomod does the analysis of Go modules and returns its findings.
+package gomod
+
+import "github.com/godepbot/depbot"
+
+// Find walks the directory three and looks for go.mod files
+// to then parse dependencies and return them.
+func FindDependencies(wd string) ([]depbot.Dependency, error) {
+	return []depbot.Dependency{}, nil
+}
 
 // import (
 // 	"depbot/app/models"

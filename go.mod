@@ -1,3 +1,3 @@
-module github.com/depbot/depbot
+module github.com/godepbot/depbot
 
 go 1.18
