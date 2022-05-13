@@ -5,11 +5,11 @@ type DependencyKind string
 
 const (
 	// A library dependency. Most probably open source.
-	DependencyKindLibrary string = "library"
+	DependencyKindLibrary DependencyKind = "library"
 
 	// Language that the codebase depends on.
-	DependencyKindLanguage string = "language"
+	DependencyKindLanguage DependencyKind = "language"
 
 	// Tools like gofmt, yarn, npm, cargo etc.
-	DependencyKindTool string = "tool"
+	DependencyKindTool DependencyKind = "tool"
 )
