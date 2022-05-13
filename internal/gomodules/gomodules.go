@@ -1,12 +1,84 @@
 // package gomodules does the analysis of Go modules and returns its findings.
 package gomodules
 
-import "github.com/godepbot/depbot"
+import (
+	"fmt"
+	"io/fs"
+	"io/ioutil"
+	"path/filepath"
+	"strings"
+
+	"github.com/godepbot/depbot"
+	"golang.org/x/mod/modfile"
+)
+
+const (
+	GoDependencyFile string = "go.mod"
+	DependencyNameGo string = "Go"
+)
 
 // Find walks the directory three and looks for go.mod files
 // to then parse dependencies and return them.
-func FindDependencies(wd string) ([]depbot.Dependency, error) {
-	return []depbot.Dependency{}, nil
+func FindDependencies(wd string) (depbot.Dependencies, error) {
+
+	pths := []string{}
+
+	tPath := "/Users/ezequielgalindo/Projects/agnte"
+	filepath.WalkDir(tPath, func(path string, d fs.DirEntry, err error) error {
+
+		if strings.Contains(path, GoDependencyFile) {
+			pths = append(pths, path)
+		}
+
+		return nil
+	})
+
+	dependencies := depbot.Dependencies{}
+
+	for _, p := range pths {
+		d, err := ioutil.ReadFile(p)
+
+		if err != nil {
+			fmt.Println("Error reading the file.")
+			return dependencies, err
+		}
+
+		f, err := modfile.Parse(p, d, nil)
+
+		if err != nil {
+			fmt.Println("Error parsing the file.")
+			return dependencies, err
+		}
+
+		dependencies = append(dependencies, languageDependency(f.Go))
+
+		for _, r := range f.Require {
+			dependencies = append(dependencies, libraryDependency(r))
+		}
+
+		fmt.Println("Dependencies found:", len(f.Require), "for file: ", p)
+	}
+
+	return dependencies, nil
+}
+
+func languageDependency(g *modfile.Go) depbot.Dependency {
+	return depbot.Dependency{
+		File:    GoDependencyFile,
+		Version: g.Version,
+		Name:    DependencyNameGo,
+		Kind:    depbot.DependencyKindLanguage,
+	}
+}
+
+func libraryDependency(r *modfile.Require) depbot.Dependency {
+	return depbot.Dependency{
+		File:    GoDependencyFile,
+		Name:    r.Mod.Path,
+		Version: r.Mod.Version,
+		Kind:    depbot.DependencyKindLibrary,
+		Direct:  !r.Indirect,
+	}
 }
 
 // d, err := os.TempDir()
