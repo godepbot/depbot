@@ -3,6 +3,7 @@ package gomodules
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
 	"testing"
 )
 
@@ -27,9 +28,12 @@ func Test_SingleDependency(t *testing.T) {
 
 	tmp := t.TempDir()
 
-	file, errTempFile := ioutil.TempFile(tmp, "go*.mod")
-	if errTempFile != nil {
-		t.Logf("got an error but should be nil, error: %v ", errTempFile)
+	fmt.Println("Tmp directory:", tmp)
+
+	file, err := os.Create(tmp + "/" + "go.mod")
+
+	if err != nil {
+		t.Logf("got an error but should be nil, error: %v ", err)
 		t.Fail()
 		return
 	}
@@ -42,15 +46,15 @@ func Test_SingleDependency(t *testing.T) {
 		return
 	}
 
-	dependecies, err := FindDependencies(tmp)
+	dependencies, err := FindDependencies(tmp)
 	if err != nil {
 		t.Logf("got an error but should be nil, error : %v ", err.Error())
 		t.Fail()
 		return
 	}
 
-	if len(dependecies) != 3 {
-		t.Logf("got %v, but was expected %v", len(dependecies), 3)
+	if len(dependencies) != 3 {
+		t.Logf("got %v, but was expected %v", len(dependencies), 3)
 		t.Fail()
 		return
 	}
