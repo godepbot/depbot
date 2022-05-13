@@ -13,19 +13,16 @@ import (
 )
 
 const (
-	GoDependencyFile string = "go.mod"
+	GoDependencyFile string = ".mod"
 	DependencyNameGo string = "Go"
 )
 
 // Find walks the directory three and looks for go.mod files
 // to then parse dependencies and return them.
 func FindDependencies(wd string) (depbot.Dependencies, error) {
-
 	pths := []string{}
 
-	tPath := "/Users/ezequielgalindo/Projects/agnte"
-	filepath.WalkDir(tPath, func(path string, d fs.DirEntry, err error) error {
-
+	filepath.WalkDir(wd, func(path string, d fs.DirEntry, err error) error {
 		if strings.Contains(path, GoDependencyFile) {
 			pths = append(pths, path)
 		}
