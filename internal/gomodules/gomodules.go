@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	GoDependencyFile string = ".mod"
+	GoDependencyFile string = "go.mod"
 	DependencyNameGo string = "Go"
 )
 
