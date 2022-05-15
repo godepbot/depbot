@@ -52,8 +52,6 @@ func FindDependencies(wd string) (depbot.Dependencies, error) {
 		for _, r := range f.Require {
 			dependencies = append(dependencies, libraryDependency(r))
 		}
-
-		fmt.Println("Dependencies found:", len(f.Require), "for file: ", p)
 	}
 
 	return dependencies, nil
