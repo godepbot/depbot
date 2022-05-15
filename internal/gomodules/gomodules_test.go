@@ -21,6 +21,7 @@ var FileContent = `
 	go 1.18
 	
 	require (
+		github.com/gobuffalo/plush/v4 v4.1.9
 		golang.org/x/mod v0.5.1 // indirect
 		golang.org/x/xerrors v0.0.0-20191011141410-1b5146add898 // indirect
 	)
@@ -36,7 +37,6 @@ func Test_SingleDependency(t *testing.T) {
 		return
 	}
 
-	fmt.Println("TempFile is: ", file.Name())
 	errWriteFile := ioutil.WriteFile(file.Name(), []byte(FileContent), 0644)
 	if errWriteFile != nil {
 		t.Logf("got an error but should be nil, error : %v ", errWriteFile.Error())
@@ -51,11 +51,27 @@ func Test_SingleDependency(t *testing.T) {
 		return
 	}
 
-	if len(dependencies) != 3 {
-		t.Logf("got %v, but was expected %v", len(dependencies), 3)
+	if len(dependencies) != 4 {
+		t.Logf("got %v, but was expected %v", len(dependencies), 4)
 		t.Fail()
 		return
 	}
+
+	if dependencies[0].Name != gomodules.DependencyNameGo {
+		t.Logf("Got %v, but was expected %v", dependencies[0].Name, gomodules.DependencyNameGo)
+		t.Fail()
+	}
+
+	if dependencies[1].Name != "github.com/gobuffalo/plush/v4" {
+		t.Logf("Got %v, but was expected %v", dependencies[1].Name, "github.com/gobuffalo/plush/v4")
+		t.Fail()
+	}
+
+	if dependencies[3].Version != "v0.0.0-20191011141410-1b5146add898" {
+		t.Logf("Got %v, but was expected %v", dependencies[1].Version, "v0.0.0-20191011141410-1b5146add898")
+		t.Fail()
+	}
+
 }
 
 func Test_MultipleDependencies(t *testing.T) {
@@ -95,8 +111,8 @@ func Test_MultipleDependencies(t *testing.T) {
 
 	dependencies, err := gomodules.FindDependencies(tmpDir)
 
-	if len(dependencies) != 9 {
-		t.Logf("got %v, but was expected %v", len(dependencies), 9)
+	if len(dependencies) != 12 {
+		t.Logf("got %v, but was expected %v", len(dependencies), 12)
 		t.Fail()
 		return
 	}
