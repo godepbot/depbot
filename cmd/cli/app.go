@@ -45,7 +45,6 @@ func (app *App) Main(ctx context.Context, pwd string, args []string) error {
 func (app *App) Usage(w io.Writer) error {
 	fmt.Fprintln(w, "Usage: depbot [options]")
 	fmt.Fprintln(w, "---------------")
-	fmt.Fprintln(w, "Hola Bry")
 
 	return nil
 }
