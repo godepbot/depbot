@@ -62,8 +62,8 @@ func Test_SingleDependency(t *testing.T) {
 		t.Fail()
 	}
 
-	if dependencies[1].Name != "github.com/gobuffalo/plush/v4" {
-		t.Logf("Got %v, but was expected %v", dependencies[1].Name, "github.com/gobuffalo/plush/v4")
+	if dependencies[1].Name != "github.com/gobuffalo/plush/v6" {
+		t.Logf("Got %v, but was expected %v", dependencies[1].Name, "github.com/gobuffalo/plush/v6")
 		t.Fail()
 	}
 
