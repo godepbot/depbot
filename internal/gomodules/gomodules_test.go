@@ -1,7 +1,6 @@
 package gomodules_test
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -9,13 +8,7 @@ import (
 	"github.com/godepbot/depbot/internal/gomodules"
 )
 
-// d, err := t.TempDir()
-// Write go.mod en directory
-// Write package/go.mod
-// Write package/p2/go.mod
-// Check if no go.mod
-
-var FileContent = `
+var fileContent = `
 	module github.com/godepbot/depbot
 
 	go 1.18
@@ -37,7 +30,7 @@ func Test_SingleDependency(t *testing.T) {
 		return
 	}
 
-	errWriteFile := ioutil.WriteFile(file.Name(), []byte(FileContent), 0644)
+	errWriteFile := ioutil.WriteFile(file.Name(), []byte(fileContent), 0644)
 	if errWriteFile != nil {
 		t.Logf("got an error but should be nil, error : %v ", errWriteFile.Error())
 		t.Fail()
@@ -57,8 +50,8 @@ func Test_SingleDependency(t *testing.T) {
 		return
 	}
 
-	if dependencies[0].Name != gomodules.DependencyNameGo {
-		t.Logf("Got %v, but was expected %v", dependencies[0].Name, gomodules.DependencyNameGo)
+	if dependencies[0].Name != "go.mod" {
+		t.Logf("Got %v, but was expected %v", dependencies[0].Name, "go.mod")
 		t.Fail()
 	}
 
@@ -77,7 +70,7 @@ func Test_SingleDependency(t *testing.T) {
 func Test_MultipleDependencies(t *testing.T) {
 	tmpDir := t.TempDir()
 
-	errWriteFile := ioutil.WriteFile(tmpDir+"/go.mod", []byte(FileContent), 0644)
+	errWriteFile := ioutil.WriteFile(tmpDir+"/go.mod", []byte(fileContent), 0644)
 	if errWriteFile != nil {
 		t.Logf("got an error but should be nil, error : %v ", errWriteFile.Error())
 		t.Fail()
@@ -90,30 +83,30 @@ func Test_MultipleDependencies(t *testing.T) {
 	err := os.MkdirAll(newDirectoriesPath, os.ModePerm)
 
 	if err != nil {
-		fmt.Println("Error creating directories:", err)
+		t.Fatalf("got an error but should be nil, error : %v ", err)
 		return
 	}
 
-	errWriteFile = ioutil.WriteFile(packagePath+"/go.mod", []byte(FileContent), 0644)
+	errWriteFile = ioutil.WriteFile(packagePath+"/go.mod", []byte(fileContent), 0644)
 	if errWriteFile != nil {
-		t.Logf("got an error but should be nil, error : %v ", errWriteFile.Error())
-		t.Fail()
+		t.Fatalf("got an error but should be nil, error : %v ", errWriteFile.Error())
 		return
 	}
 
-	errWriteFile = ioutil.WriteFile(newDirectoriesPath+"/go.mod", []byte(FileContent), 0644)
-
+	errWriteFile = ioutil.WriteFile(newDirectoriesPath+"/go.mod", []byte(fileContent), 0644)
 	if errWriteFile != nil {
-		t.Logf("got an error but should be nil, error : %v ", errWriteFile.Error())
-		t.Fail()
+		t.Fatalf("got an error but should be nil, error : %v ", errWriteFile.Error())
 		return
 	}
 
-	dependencies, err := gomodules.FindDependencies(tmpDir)
+	dependencies, errFindDep := gomodules.FindDependencies(tmpDir)
+	if errFindDep != nil {
+		t.Fatalf("got an error but should be nil, error : %v ", errWriteFile.Error())
+		return
+	}
 
 	if len(dependencies) != 12 {
-		t.Logf("got %v, but was expected %v", len(dependencies), 12)
-		t.Fail()
+		t.Fatalf("got %v, but was expected %v", len(dependencies), 12)
 		return
 	}
 

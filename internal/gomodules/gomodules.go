@@ -13,8 +13,8 @@ import (
 )
 
 const (
-	GoDependencyFile string = "go.mod"
-	DependencyNameGo string = "Go"
+	goDependencyFile string = "go.mod"
+	dependencyNameGo string = "Go"
 )
 
 // Find walks the directory three and looks for go.mod files
@@ -23,7 +23,7 @@ func FindDependencies(wd string) (depbot.Dependencies, error) {
 	pths := []string{}
 
 	filepath.WalkDir(wd, func(path string, d fs.DirEntry, err error) error {
-		if strings.Contains(path, GoDependencyFile) {
+		if strings.Contains(path, goDependencyFile) {
 			pths = append(pths, path)
 		}
 
@@ -47,33 +47,25 @@ func FindDependencies(wd string) (depbot.Dependencies, error) {
 			return dependencies, err
 		}
 
-		dependencies = append(dependencies, languageDependency(f.Go))
+		dependencies = append(dependencies, depbot.Dependency{
+			File:    goDependencyFile,
+			Version: f.Go.Version,
+			Name:    dependencyNameGo,
+			Kind:    depbot.DependencyKindLanguage,
+		})
 
 		for _, r := range f.Require {
-			dependencies = append(dependencies, libraryDependency(r))
+			dependencies = append(dependencies, depbot.Dependency{
+				File:    goDependencyFile,
+				Name:    r.Mod.Path,
+				Version: r.Mod.Version,
+				Kind:    depbot.DependencyKindLibrary,
+				Direct:  !r.Indirect,
+			})
 		}
 	}
 
 	return dependencies, nil
-}
-
-func languageDependency(g *modfile.Go) depbot.Dependency {
-	return depbot.Dependency{
-		File:    GoDependencyFile,
-		Version: g.Version,
-		Name:    DependencyNameGo,
-		Kind:    depbot.DependencyKindLanguage,
-	}
-}
-
-func libraryDependency(r *modfile.Require) depbot.Dependency {
-	return depbot.Dependency{
-		File:    GoDependencyFile,
-		Name:    r.Mod.Path,
-		Version: r.Mod.Version,
-		Kind:    depbot.DependencyKindLibrary,
-		Direct:  !r.Indirect,
-	}
 }
 
 // d, err := os.TempDir()
