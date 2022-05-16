@@ -25,44 +25,37 @@ func Test_SingleDependency(t *testing.T) {
 	file, err := os.Create(t.TempDir() + "/" + "go.mod")
 
 	if err != nil {
-		t.Logf("got an error but should be nil, error: %v ", err)
-		t.Fail()
+		t.Fatalf("got an error but should be nil, error: %v ", err)
 		return
 	}
 
 	errWriteFile := ioutil.WriteFile(file.Name(), []byte(fileContent), 0644)
 	if errWriteFile != nil {
-		t.Logf("got an error but should be nil, error : %v ", errWriteFile.Error())
-		t.Fail()
+		t.Fatalf("got an error but should be nil, error : %v ", errWriteFile.Error())
 		return
 	}
 
 	dependencies, err := gomodules.FindDependencies(file.Name())
 	if err != nil {
-		t.Logf("got an error but should be nil, error : %v ", err.Error())
-		t.Fail()
+		t.Fatalf("got an error but should be nil, error : %v ", err.Error())
 		return
 	}
 
 	if len(dependencies) != 4 {
-		t.Logf("got %v, but was expected %v", len(dependencies), 4)
-		t.Fail()
+		t.Fatalf("got %v, but was expected %v", len(dependencies), 4)
 		return
 	}
 
 	if dependencies[0].Name != "go.mod" {
-		t.Logf("Got %v, but was expected %v", dependencies[0].Name, "go.mod")
-		t.Fail()
+		t.Fatalf("Got %v, but was expected %v", dependencies[1].Name, "github.com/gobuffalo/plush/v4")
 	}
 
 	if dependencies[1].Name != "github.com/gobuffalo/plush/v4" {
-		t.Logf("Got %v, but was expected %v", dependencies[1].Name, "github.com/gobuffalo/plush/v4")
-		t.Fail()
+		t.Fatalf("Got %v, but was expected %v", dependencies[1].Name, "github.com/gobuffalo/plush/v4")
 	}
 
 	if dependencies[3].Version != "v0.0.0-20191011141410-1b5146add898" {
-		t.Logf("Got %v, but was expected %v", dependencies[1].Version, "v0.0.0-20191011141410-1b5146add898")
-		t.Fail()
+		t.Fatalf("Got %v, but was expected %v", dependencies[1].Version, "v0.0.0-20191011141410-1b5146add898")
 	}
 
 }
@@ -72,8 +65,7 @@ func Test_MultipleDependencies(t *testing.T) {
 
 	errWriteFile := ioutil.WriteFile(tmpDir+"/go.mod", []byte(fileContent), 0644)
 	if errWriteFile != nil {
-		t.Logf("got an error but should be nil, error : %v ", errWriteFile.Error())
-		t.Fail()
+		t.Fatalf("got an error but should be nil, error : %v ", errWriteFile.Error())
 		return
 	}
 
@@ -118,14 +110,12 @@ func Test_NoDependency(t *testing.T) {
 	dependencies, err := gomodules.FindDependencies(tmp)
 
 	if err != nil {
-		t.Logf("Error finding the dependencies : %v ", err.Error())
-		t.Fail()
+		t.Fatalf("Error finding the dependencies : %v ", err.Error())
 		return
 	}
 
 	if len(dependencies) > 0 {
-		t.Logf("got %v, but was expected %v", len(dependencies), 0)
-		t.Fail()
+		t.Fatalf("got %v, but was expected %v", len(dependencies), 0)
 	}
 
 }
