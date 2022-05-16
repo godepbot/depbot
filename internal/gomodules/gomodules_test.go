@@ -46,8 +46,8 @@ func Test_SingleDependency(t *testing.T) {
 		return
 	}
 
-	if dependencies[0].Name != "go.mod" {
-		t.Fatalf("Got %v, but was expected %v", dependencies[1].Name, "github.com/gobuffalo/plush/v4")
+	if dependencies[0].Name != "Go" {
+		t.Fatalf("Got %v, but was expected %v", dependencies[0].Name, "github.com/gobuffalo/plush/v4")
 	}
 
 	if dependencies[1].Name != "github.com/gobuffalo/plush/v4" {
