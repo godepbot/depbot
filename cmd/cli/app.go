@@ -28,7 +28,15 @@ func (app *App) Main(ctx context.Context, pwd string, args []string) error {
 		return err
 	}
 
-	fmt.Println("Total dependencies found:", len(deps))
+	if len(deps) > 0 {
+		fmt.Println("Total Dependencies found for this project:", len(deps))
+	} else {
+		fmt.Println("No Go Dependencies were found for this project.")
+	}
+
+	for _, d := range deps {
+		fmt.Println(d.Name, d.Version)
+	}
 
 	// if app.Commands == nil {
 	// 	app.Commands = map[string]Commander{}
