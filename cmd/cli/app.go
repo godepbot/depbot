@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"io"
+
+	"github.com/godepbot/depbot/internal/gomodules"
 )
 
 type App struct {
@@ -18,6 +20,15 @@ func (app *App) Main(ctx context.Context, pwd string, args []string) error {
 	if len(args) > 0 {
 		return app.Usage(app.Stdout())
 	}
+
+	deps, err := gomodules.FindDependencies(pwd)
+
+	if err != nil {
+		fmt.Println("Error is", err)
+		return err
+	}
+
+	fmt.Println("Total dependencies found:", len(deps))
 
 	// if app.Commands == nil {
 	// 	app.Commands = map[string]Commander{}
