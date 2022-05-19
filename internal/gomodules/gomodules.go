@@ -65,6 +65,16 @@ func FindDependencies(wd string) (depbot.Dependencies, error) {
 		}
 	}
 
+	if len(deps) > 0 {
+		fmt.Println("Total Dependencies found for this project:", len(deps))
+	} else {
+		fmt.Println("No Go Dependencies were found for this project.")
+	}
+
+	for _, d := range deps {
+		fmt.Println(d.Name, d.Version)
+	}
+
 	return dependencies, nil
 }
 
