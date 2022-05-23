@@ -1,3 +1,3 @@
 package depbot
 
-type FinderFn func(wd string) ([]Dependency, error)
+type FinderFn func(wd string) (Dependencies, error)

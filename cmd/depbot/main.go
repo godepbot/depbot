@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/godepbot/depbot/cmd/cli"
-	"github.com/godepbot/depbot/internal/find"
 	"github.com/godepbot/depbot/internal/gomodules"
+	"github.com/godepbot/depbot/internal/list"
 )
 
 // app for the CLI, commands used will be added here.
@@ -17,7 +17,7 @@ var (
 	app = &cli.App{
 		Commands: []cli.Command{
 			// find command
-			&find.NewCommand(gomodules.FindDependencies),
+			list.NewCommand(gomodules.FindDependencies),
 		},
 	}
 )

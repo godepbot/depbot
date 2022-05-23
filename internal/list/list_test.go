@@ -11,6 +11,16 @@ import (
 
 func TestCommand(t *testing.T) {
 
+	fakeFinder := func(wd string) (depbot.Dependencies, error) {
+		dd := []depbot.Dependency{
+			{Name: "github.com/wawandco/ox", Version: "v1.0.0"},
+			{Name: "github.com/wawandco/maildoor", Version: "v1.0.0"},
+			{Name: "github.com/wawandco/fako", Version: "v1.0.0"},
+		}
+
+		return dd, nil
+	}
+
 	t.Run("No dependency found", func(t *testing.T) {
 		out := bytes.NewBuffer([]byte{})
 		c := &list.Command{}
@@ -27,17 +37,6 @@ func TestCommand(t *testing.T) {
 	})
 
 	t.Run("One finder dep", func(t *testing.T) {
-
-		fakeFinder := func(wd string) ([]depbot.Dependency, error) {
-			dd := []depbot.Dependency{
-				{Name: "github.com/wawandco/ox", Version: "v1.0.0"},
-				{Name: "github.com/wawandco/maildoor", Version: "v1.0.0"},
-				{Name: "github.com/wawandco/fako", Version: "v1.0.0"},
-			}
-
-			return dd, nil
-		}
-
 		c := list.NewCommand(fakeFinder)
 		out := bytes.NewBuffer([]byte{})
 		c.SetIO(out, out, nil)
@@ -53,16 +52,6 @@ func TestCommand(t *testing.T) {
 	})
 
 	t.Run("Multiple finders", func(t *testing.T) {
-		fakeFinder := func(wd string) ([]depbot.Dependency, error) {
-			dd := []depbot.Dependency{
-				{Name: "github.com/wawandco/ox", Version: "v1.0.0"},
-				{Name: "github.com/wawandco/maildoor", Version: "v1.0.0"},
-				{Name: "github.com/wawandco/fako", Version: "v1.0.0"},
-			}
-
-			return dd, nil
-		}
-
 		c := list.NewCommand(
 			fakeFinder,
 			fakeFinder,
