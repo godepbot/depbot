@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/godepbot/depbot"
 	"github.com/godepbot/depbot/internal/gomodules"
+	"github.com/godepbot/depbot/internal/jsmodules"
 )
 
 type App struct {
@@ -21,11 +23,10 @@ func (app *App) Main(ctx context.Context, pwd string, args []string) error {
 		return app.Usage(app.Stdout())
 	}
 
-	deps, err := gomodules.FindDependencies(pwd)
-
+	deps, err := findDependencies(pwd)
 	if err != nil {
 		fmt.Println("Error is", err)
-		return err
+		return fmt.Errorf("error finding dependencies: %w", err)
 	}
 
 	fmt.Println("Total dependencies found:", len(deps))
@@ -47,4 +48,24 @@ func (app *App) Usage(w io.Writer) error {
 	fmt.Fprintln(w, "---------------")
 
 	return nil
+}
+
+func findDependencies(pwd string) (depbot.Dependencies, error) {
+	deps := depbot.Dependencies{}
+
+	goDeps, err := gomodules.FindDependencies(pwd)
+	if err != nil {
+		return deps, fmt.Errorf("error finding go dependencies, err : %w", err)
+	}
+
+	deps = append(deps, goDeps...)
+
+	jsDeps, err := jsmodules.FindDependencies(pwd)
+	if err != nil {
+		return deps, fmt.Errorf("error finding js dependencies, err : %w", err)
+	}
+
+	deps = append(deps, jsDeps...)
+
+	return deps, nil
 }
