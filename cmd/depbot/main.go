@@ -9,14 +9,18 @@ import (
 
 	"github.com/godepbot/depbot/cmd/cli"
 	"github.com/godepbot/depbot/internal/find"
+	"github.com/godepbot/depbot/internal/gomodules"
 )
 
 // app for the CLI, commands used will be added here.
-var app = &cli.App{
-	Commands: []cli.Command{
-		&find.Command{},
-	},
-}
+var (
+	app = &cli.App{
+		Commands: []cli.Command{
+			// find command
+			&find.NewCommand(gomodules.FindDependencies),
+		},
+	}
+)
 
 func main() {
 	ctx := context.Background()
