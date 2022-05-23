@@ -5,6 +5,11 @@ import (
 	"os"
 )
 
+// IOSetter will be most of the commands for testing purposes.
+type IOSetter interface {
+	SetIO(stdout io.Writer, stderr io.Writer, stdin io.Reader)
+}
+
 // IO represents the standard input, output, and error stream.
 type IO struct {
 	In  io.Reader // standard input
