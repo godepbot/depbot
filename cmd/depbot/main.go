@@ -8,7 +8,15 @@ import (
 	"time"
 
 	"github.com/godepbot/depbot/cmd/cli"
+	"github.com/godepbot/depbot/internal/find"
 )
+
+// app for the CLI, commands used will be added here.
+var app = &cli.App{
+	Commands: []cli.Command{
+		&find.Command{},
+	},
+}
 
 func main() {
 	ctx := context.Background()
@@ -26,7 +34,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	app := &cli.App{}
 	err = app.Main(ctx, pwd, os.Args[1:])
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
