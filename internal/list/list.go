@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"text/tabwriter"
 
 	"github.com/godepbot/depbot"
 )
@@ -17,7 +18,7 @@ type Command struct {
 }
 
 func (c *Command) Name() string {
-	return "find"
+	return "list"
 }
 
 func (c *Command) Main(ctx context.Context, pwd string, args []string) error {
@@ -32,6 +33,25 @@ func (c *Command) Main(ctx context.Context, pwd string, args []string) error {
 	}
 
 	fmt.Fprintln(c.stdout, "Total dependencies found:", len(deps))
+
+	w := new(tabwriter.Writer)
+
+	// Format in tab-separated columns with a tab stop of 8.
+	w.Init(c.stdout, 0, 8, 0, '\t', 0)
+	fmt.Fprintln(w, "\nName\tVersion\tFile\tDirect")
+	fmt.Fprintln(w, "----\t-------\t----\t-------")
+	for _, v := range deps {
+		fmt.Fprintf(
+			w,
+			"%v\t%v\t%v\t%v\t\n",
+			v.Name,
+			v.Version,
+			v.File,
+			v.Direct,
+		)
+	}
+	fmt.Fprintln(w)
+	w.Flush()
 
 	return nil
 }
