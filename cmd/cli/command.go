@@ -10,3 +10,7 @@ type Command interface {
 	Name() string
 	Main(ctx context.Context, pwd string, args []string) error
 }
+
+type HelpTexter interface {
+	HelpText() string
+}
