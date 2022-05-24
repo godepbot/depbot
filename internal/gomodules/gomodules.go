@@ -34,17 +34,13 @@ func FindDependencies(wd string) (depbot.Dependencies, error) {
 
 	for _, p := range pths {
 		d, err := ioutil.ReadFile(p)
-
 		if err != nil {
-			fmt.Println("Error reading the file.")
-			return dependencies, err
+			return dependencies, fmt.Errorf("error reading dependency file '%v': %w", p, err)
 		}
 
 		f, err := modfile.Parse(p, d, nil)
-
 		if err != nil {
-			fmt.Println("Error parsing the file.")
-			return dependencies, err
+			return dependencies, fmt.Errorf("error parsing dependencies on file '%v': %w", p, err)
 		}
 
 		dependencies = append(dependencies, depbot.Dependency{
