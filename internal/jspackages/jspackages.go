@@ -42,15 +42,13 @@ func FindDependencies(wd string) (depbot.Dependencies, error) {
 	for _, p := range pths {
 		openFile, err := ioutil.ReadFile(p)
 		if err != nil {
-			fmt.Println("Error reading the file.")
-			return dependencies, err
+			return dependencies, fmt.Errorf("error reading dependency file '%v': %w", p, err)
 		}
 
 		packageJson := PackageJson{}
 		errU := json.Unmarshal(openFile, &packageJson)
 		if errU != nil {
-			fmt.Println("Error mashal the file.", errU)
-			return dependencies, errU
+			return dependencies, fmt.Errorf("error parsing dependency file '%v': %w", p, errU)
 		}
 
 		dependencies = append(dependencies, depbot.Dependency{
