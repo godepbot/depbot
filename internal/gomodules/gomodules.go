@@ -34,17 +34,13 @@ func FindDependencies(wd string) (depbot.Dependencies, error) {
 
 	for _, p := range pths {
 		d, err := ioutil.ReadFile(p)
-
 		if err != nil {
-			fmt.Println("Error reading the file.")
-			return dependencies, err
+			return dependencies, fmt.Errorf("error reading dependency file '%v': %w", p, err)
 		}
 
 		f, err := modfile.Parse(p, d, nil)
-
 		if err != nil {
-			fmt.Println("Error parsing the file.")
-			return dependencies, err
+			return dependencies, fmt.Errorf("error parsing dependencies on file '%v': %w", p, err)
 		}
 
 		dependencies = append(dependencies, depbot.Dependency{
@@ -52,6 +48,7 @@ func FindDependencies(wd string) (depbot.Dependencies, error) {
 			Version: f.Go.Version,
 			Name:    dependencyNameGo,
 			Kind:    depbot.DependencyKindLanguage,
+			Direct:  true,
 		})
 
 		for _, r := range f.Require {
@@ -67,46 +64,3 @@ func FindDependencies(wd string) (depbot.Dependencies, error) {
 
 	return dependencies, nil
 }
-
-// d, err := os.TempDir()
-// Write go.mod en directory
-// Write package/go.mod
-// Write package/p2/go.mod
-// Check if no go.mod
-//
-// import (
-// 	"fmt"
-// 	"io/ioutil"
-// 	"path/filepath"
-//
-// 	"golang.org/x/mod/modfile"
-// )
-//
-// func Parse(path string) ([]models.Dependency, error) {
-// 	file, err := ioutil.ReadFile(path)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("could not read %s: %w\n", path, err)
-// 	}
-
-// 	f, err := modfile.Parse(path, file, nil)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("could not read %v: %w\n", path, err)
-// 	}
-
-// 	deps := []models.Dependency{}
-// 	for _, req := range f.Require {
-// 		dep := models.Dependency{
-// 			Library: models.Library{
-// 				Name:     req.Mod.Path,
-// 				Language: models.LanguageGo,
-// 			},
-//
-// 			Version: req.Mod.Version,
-// 			Source:  path,
-// 		}
-
-// 		deps = append(deps, dep)
-// 	}
-
-// 	return deps, nil
-// }
