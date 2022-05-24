@@ -52,6 +52,7 @@ func FindDependencies(wd string) (depbot.Dependencies, error) {
 			Version: f.Go.Version,
 			Name:    dependencyNameGo,
 			Kind:    depbot.DependencyKindLanguage,
+			Direct:  true,
 		})
 
 		for _, r := range f.Require {
