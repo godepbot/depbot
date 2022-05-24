@@ -20,6 +20,8 @@ type Dependency struct {
 
 	// Whether the dependency is direct or transitive.
 	Direct bool
+
+	Timestamp int64
 }
 
 type Dependencies []Dependency

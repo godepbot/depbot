@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/godepbot/depbot"
 	"golang.org/x/mod/modfile"
@@ -52,6 +53,7 @@ func FindDependencies(wd string) (depbot.Dependencies, error) {
 			Version: f.Go.Version,
 			Name:    dependencyNameGo,
 			Kind:    depbot.DependencyKindLanguage,
+			Timestamp: time.Now().Unix()
 		})
 
 		for _, r := range f.Require {
@@ -61,6 +63,7 @@ func FindDependencies(wd string) (depbot.Dependencies, error) {
 				Version: r.Mod.Version,
 				Kind:    depbot.DependencyKindLibrary,
 				Direct:  !r.Indirect,
+				Timestamp: time.Now().Unix(),
 			})
 		}
 	}
