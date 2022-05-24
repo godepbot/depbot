@@ -9,6 +9,7 @@ import (
 
 	"github.com/godepbot/depbot/cmd/cli"
 	"github.com/godepbot/depbot/internal/gomodules"
+	"github.com/godepbot/depbot/internal/jspackages"
 	"github.com/godepbot/depbot/internal/list"
 )
 
@@ -17,7 +18,10 @@ var (
 	app = &cli.App{
 		Commands: []cli.Command{
 			// find command
-			list.NewCommand(gomodules.FindDependencies),
+			list.NewCommand(
+				gomodules.FindDependencies,
+				jspackages.FindDependencies,
+			),
 		},
 	}
 )
