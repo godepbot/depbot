@@ -12,14 +12,14 @@ import (
 
 func TestCommand(t *testing.T) {
 
-	fakeFinder := func(wd string) (depbot.DependencyAnalisys, error) {
+	fakeFinder := func(wd string) (depbot.DependencyAnalysis, error) {
 		dd := []depbot.Dependency{
 			{Name: "github.com/wawandco/ox", Version: "v1.0.0", Kind: depbot.DependencyKindLibrary, File: "go.mod", Direct: true},
 			{Name: "github.com/wawandco/maildoor", Version: "v1.0.0", Kind: depbot.DependencyKindLibrary, File: "go.mod", Direct: true},
 			{Name: "github.com/wawandco/fako", Version: "v1.0.0", Kind: depbot.DependencyKindLibrary, File: "go.mod", Direct: true},
 		}
 
-		da := depbot.DependencyAnalisys{
+		da := depbot.DependencyAnalysis{
 			Timestamp:    time.Now().Unix(),
 			Dependencies: dd,
 		}

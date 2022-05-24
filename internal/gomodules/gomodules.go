@@ -20,7 +20,7 @@ const (
 
 // Find walks the directory three and looks for go.mod files
 // to then parse dependencies and return them.
-func FindDependencies(wd string) (depbot.DependencyAnalisys, error) {
+func FindDependencies(wd string) (depbot.DependencyAnalysis, error) {
 	pths := []string{}
 
 	filepath.WalkDir(wd, func(path string, d fs.DirEntry, err error) error {
@@ -38,7 +38,7 @@ func FindDependencies(wd string) (depbot.DependencyAnalisys, error) {
 
 		if err != nil {
 			fmt.Println("Error reading the file.")
-			return depbot.DependencyAnalisys{
+			return depbot.DependencyAnalysis{
 				Timestamp: time.Now().Unix(),
 			}, err
 		}
@@ -47,7 +47,7 @@ func FindDependencies(wd string) (depbot.DependencyAnalisys, error) {
 
 		if err != nil {
 			fmt.Println("Error parsing the file.")
-			return depbot.DependencyAnalisys{
+			return depbot.DependencyAnalysis{
 				Timestamp: time.Now().Unix(),
 			}, err
 		}
@@ -70,7 +70,7 @@ func FindDependencies(wd string) (depbot.DependencyAnalisys, error) {
 		}
 	}
 
-	return depbot.DependencyAnalisys{
+	return depbot.DependencyAnalysis{
 		Timestamp:    time.Now().Unix(),
 		Dependencies: dependencies,
 	}, nil
