@@ -1,4 +1,4 @@
-package jsmodules
+package jspackages
 
 import (
 	"encoding/json"

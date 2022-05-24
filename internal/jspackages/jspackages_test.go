@@ -1,11 +1,11 @@
-package jsmodules_test
+package jspackages_test
 
 import (
 	"io/ioutil"
 	"os"
 	"testing"
 
-	"github.com/godepbot/depbot/internal/jsmodules"
+	"github.com/godepbot/depbot/internal/jspackages"
 )
 
 var fileContent = `
@@ -45,7 +45,7 @@ func Test_JsSingleDependency(t *testing.T) {
 		return
 	}
 
-	dependencies, err := jsmodules.FindDependencies(file.Name())
+	dependencies, err := jspackages.FindDependencies(file.Name())
 	if err != nil {
 		t.Fatalf("got an error but should be nil, error : %v ", err.Error())
 		return
@@ -101,7 +101,7 @@ func Test_JsMultipleDependencies(t *testing.T) {
 		return
 	}
 
-	dependencies, errFindDep := jsmodules.FindDependencies(tmpDir)
+	dependencies, errFindDep := jspackages.FindDependencies(tmpDir)
 	if errFindDep != nil {
 		t.Fatalf("got an error but should be nil, error : %v ", errWriteFile.Error())
 		return
@@ -117,7 +117,7 @@ func Test_JsMultipleDependencies(t *testing.T) {
 func Test_JsNoDependency(t *testing.T) {
 	tmp := t.TempDir()
 
-	dependencies, err := jsmodules.FindDependencies(tmp)
+	dependencies, err := jspackages.FindDependencies(tmp)
 
 	if err != nil {
 		t.Fatalf("Error finding the dependencies : %v ", err.Error())
