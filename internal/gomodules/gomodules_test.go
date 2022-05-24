@@ -35,27 +35,27 @@ func Test_SingleDependency(t *testing.T) {
 		return
 	}
 
-	dependencies, err := gomodules.FindDependencies(file.Name())
+	analysis, err := gomodules.FindDependencies(file.Name())
 	if err != nil {
 		t.Fatalf("got an error but should be nil, error : %v ", err.Error())
 		return
 	}
 
-	if len(dependencies) != 4 {
-		t.Fatalf("got %v, but was expected %v", len(dependencies), 4)
+	if len(analysis.Dependencies) != 4 {
+		t.Fatalf("got %v, but was expected %v", len(analysis.Dependencies), 4)
 		return
 	}
 
-	if dependencies[0].Name != "Go" {
-		t.Fatalf("Got %v, but was expected %v", dependencies[0].Name, "github.com/gobuffalo/plush/v4")
+	if analysis.Dependencies[0].Name != "Go" {
+		t.Fatalf("Got %v, but was expected %v", analysis.Dependencies[0].Name, "github.com/gobuffalo/plush/v4")
 	}
 
-	if dependencies[1].Name != "github.com/gobuffalo/plush/v4" {
-		t.Fatalf("Got %v, but was expected %v", dependencies[1].Name, "github.com/gobuffalo/plush/v4")
+	if analysis.Dependencies[1].Name != "github.com/gobuffalo/plush/v4" {
+		t.Fatalf("Got %v, but was expected %v", analysis.Dependencies[1].Name, "github.com/gobuffalo/plush/v4")
 	}
 
-	if dependencies[3].Version != "v0.0.0-20191011141410-1b5146add898" {
-		t.Fatalf("Got %v, but was expected %v", dependencies[1].Version, "v0.0.0-20191011141410-1b5146add898")
+	if analysis.Dependencies[3].Version != "v0.0.0-20191011141410-1b5146add898" {
+		t.Fatalf("Got %v, but was expected %v", analysis.Dependencies[1].Version, "v0.0.0-20191011141410-1b5146add898")
 	}
 
 }
@@ -91,14 +91,14 @@ func Test_MultipleDependencies(t *testing.T) {
 		return
 	}
 
-	dependencies, errFindDep := gomodules.FindDependencies(tmpDir)
+	analysis, errFindDep := gomodules.FindDependencies(tmpDir)
 	if errFindDep != nil {
 		t.Fatalf("got an error but should be nil, error : %v ", errWriteFile.Error())
 		return
 	}
 
-	if len(dependencies) != 12 {
-		t.Fatalf("got %v, but was expected %v", len(dependencies), 12)
+	if len(analysis.Dependencies) != 12 {
+		t.Fatalf("got %v, but was expected %v", len(analysis.Dependencies), 12)
 		return
 	}
 
@@ -107,15 +107,15 @@ func Test_MultipleDependencies(t *testing.T) {
 func Test_NoDependency(t *testing.T) {
 	tmp := t.TempDir()
 
-	dependencies, err := gomodules.FindDependencies(tmp)
+	analysis, err := gomodules.FindDependencies(tmp)
 
 	if err != nil {
 		t.Fatalf("Error finding the dependencies : %v ", err.Error())
 		return
 	}
 
-	if len(dependencies) > 0 {
-		t.Fatalf("got %v, but was expected %v", len(dependencies), 0)
+	if len(analysis.Dependencies) > 0 {
+		t.Fatalf("got %v, but was expected %v", len(analysis.Dependencies), 0)
 	}
 
 }

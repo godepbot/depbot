@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"testing"
+	"time"
 
 	"github.com/godepbot/depbot"
 	"github.com/godepbot/depbot/internal/list"
@@ -11,14 +12,19 @@ import (
 
 func TestCommand(t *testing.T) {
 
-	fakeFinder := func(wd string) (depbot.Dependencies, error) {
+	fakeFinder := func(wd string) (depbot.DependencyAnalisys, error) {
 		dd := []depbot.Dependency{
 			{Name: "github.com/wawandco/ox", Version: "v1.0.0", Kind: depbot.DependencyKindLibrary, File: "go.mod", Direct: true},
 			{Name: "github.com/wawandco/maildoor", Version: "v1.0.0", Kind: depbot.DependencyKindLibrary, File: "go.mod", Direct: true},
 			{Name: "github.com/wawandco/fako", Version: "v1.0.0", Kind: depbot.DependencyKindLibrary, File: "go.mod", Direct: true},
 		}
 
-		return dd, nil
+		da := depbot.DependencyAnalisys{
+			Timestamp:    time.Now().Unix(),
+			Dependencies: dd,
+		}
+
+		return da, nil
 	}
 
 	t.Run("No dependency found", func(t *testing.T) {
@@ -87,8 +93,8 @@ func TestCommand(t *testing.T) {
 			t.Fatalf("expected output to contain 'Total dependencies found: 3'")
 		}
 
-		deps, err := fakeFinder("")
-		for _, v := range deps {
+		da, err := fakeFinder("")
+		for _, v := range da.Dependencies {
 			if !bytes.Contains(out.Bytes(), []byte(v.Name)) {
 				t.Fatalf("expected output to contain %v", v.Name)
 			}
