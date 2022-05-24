@@ -19,23 +19,32 @@ Or download the appropriate binary from the releases page.
 
 ## Usage
 
-Depbot is focuses on doing the analysis of dependencies within the source code. The default behavior of the command does that. Besides it, the 
+Depbot CLI is in charge of determining dependencies on the current source code folder, It has the list and the sync command.
 
-```bash
-$ depbot
+### List
+
+List analyzes the current source code folder and prints a list of dependencies it has.
+
+```sh
+> $ depbot list
+
+Total dependencies found: 3
+
+Name                    Version                                 File    Direct
+----                    -------                                 ----    -------
+Go                      1.18                                    go.mod  false
+golang.org/x/mod        v0.5.1                                  go.mod  false
+golang.org/x/xerrors    v0.0.0-20191011141410-1b5146add898      go.mod  false
 ```
 
-And that will list the dependencies found in current directory and bellow.
+## sync
 
-```bash
-[TODO] show how results look like
-```
+The sync command synchronizes the dependencies to a given Depbot server. The command looks for the DEPBOT_API_KEY DEPBOT_SERVER_URL environment variables when synchronizing. If the DEPBOT_API_KEY is not set the command errors.
 
-## Options
+```sh
+$ depbot sync
 
-[TODO] Document options
-```bash
-DEPBOT_API_KEY=xxxxx DEPBOT_SERVER_HOST=xxxxx depbot --sync
+Success! 34 Dependencies synchronized.
 ```
 
 ## Running in development

@@ -13,9 +13,9 @@ func TestCommand(t *testing.T) {
 
 	fakeFinder := func(wd string) (depbot.Dependencies, error) {
 		dd := []depbot.Dependency{
-			{Name: "github.com/wawandco/ox", Version: "v1.0.0"},
-			{Name: "github.com/wawandco/maildoor", Version: "v1.0.0"},
-			{Name: "github.com/wawandco/fako", Version: "v1.0.0"},
+			{Name: "github.com/wawandco/ox", Version: "v1.0.0", Kind: depbot.DependencyKindLibrary, File: "go.mod", Direct: true},
+			{Name: "github.com/wawandco/maildoor", Version: "v1.0.0", Kind: depbot.DependencyKindLibrary, File: "go.mod", Direct: true},
+			{Name: "github.com/wawandco/fako", Version: "v1.0.0", Kind: depbot.DependencyKindLibrary, File: "go.mod", Direct: true},
 		}
 
 		return dd, nil
@@ -68,6 +68,40 @@ func TestCommand(t *testing.T) {
 		if !bytes.Contains(out.Bytes(), []byte("Total dependencies found: 6")) {
 			t.Errorf("expected output to contain 'Total dependencies found: 6'")
 		}
+	})
+
+	t.Run("table with the dependencies", func(t *testing.T) {
+		c := list.NewCommand(
+			fakeFinder,
+		)
+
+		out := bytes.NewBuffer([]byte{})
+		c.SetIO(out, out, nil)
+
+		err := c.Main(context.Background(), t.TempDir(), []string{})
+		if err != nil {
+			t.Fatalf("error running list command: %v", err)
+		}
+
+		if !bytes.Contains(out.Bytes(), []byte("Total dependencies found: 3")) {
+			t.Fatalf("expected output to contain 'Total dependencies found: 3'")
+		}
+
+		deps, err := fakeFinder("")
+		for _, v := range deps {
+			if !bytes.Contains(out.Bytes(), []byte(v.Name)) {
+				t.Fatalf("expected output to contain %v", v.Name)
+			}
+
+			if !bytes.Contains(out.Bytes(), []byte(v.Version)) {
+				t.Fatalf("expected output to contain %v", v.Version)
+			}
+
+			if !bytes.Contains(out.Bytes(), []byte(v.Version)) {
+				t.Fatalf("expected output to contain %v", v.Direct)
+			}
+		}
+
 	})
 
 }
