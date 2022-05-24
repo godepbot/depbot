@@ -24,12 +24,12 @@ func (c *Command) Name() string {
 func (c *Command) Main(ctx context.Context, pwd string, args []string) error {
 	deps := []depbot.Dependency{}
 	for _, df := range c.finders {
-		dx, err := df(pwd)
+		analysis, err := df(pwd)
 		if err != nil {
 			return err
 		}
 
-		deps = append(deps, dx...)
+		deps = append(deps, analysis.Dependencies...)
 	}
 
 	fmt.Fprintln(c.stdout, "Total dependencies found:", len(deps))
