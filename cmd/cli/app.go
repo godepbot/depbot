@@ -3,69 +3,74 @@ package cli
 import (
 	"context"
 	"fmt"
-	"io"
-
-	"github.com/godepbot/depbot"
-	"github.com/godepbot/depbot/internal/gomodules"
-	"github.com/godepbot/depbot/internal/jsmodules"
 )
 
 type App struct {
 	IO
+
+	Commands []Command
 }
 
+// findCommand with given args, if no args passed
+// it will return nil.
+func (app *App) findCommand(args []string) Command {
+	if len(args) == 0 {
+		return nil
+	}
+
+	for _, v := range app.Commands {
+		if v.Name() == args[0] {
+			return v
+		}
+	}
+
+	return nil
+}
+
+// Main entry point for the application. This method finds the passed command
+// and executes it with the passed arguments. If there is no command passed
+// it will print the usage.
 func (app *App) Main(ctx context.Context, pwd string, args []string) error {
 	if app == nil {
 		return fmt.Errorf("app is nil")
 	}
 
-	if len(args) > 0 {
-		return app.Usage(app.Stdout())
+	if len(args) == 0 {
+		return app.Usage()
 	}
 
-	deps, err := findDependencies(pwd)
-	if err != nil {
-		fmt.Println("Error is", err)
-		return fmt.Errorf("error finding dependencies: %w", err)
+	command := app.findCommand(args)
+	if command == nil {
+		return app.Usage()
 	}
 
-	fmt.Println("Total dependencies found:", len(deps))
+	if ist, ok := command.(IOSetter); ok {
+		ist.SetIO(app.Stdout(), app.Stderr(), app.Stdin())
+	}
 
-	// if app.Commands == nil {
-	// 	app.Commands = map[string]Commander{}
-	// }
-
-	// cmd, ok := app.Commands[args[0]]
-	// if !ok {
-	// 	return fmt.Errorf("command %q not found", args[0])
-	// }
-
-	return nil //cmd.Main(ctx, pwd, args[1:])
+	return command.Main(ctx, pwd, args[1:])
 }
 
-func (app *App) Usage(w io.Writer) error {
-	fmt.Fprintln(w, "Usage: depbot [options]")
-	fmt.Fprintln(w, "---------------")
+// Usage of the App, it will print basic usage information
+// and a list of commands available.
+func (app *App) Usage() error {
+	fmt.Fprint(app.Stdout(), "Usage: depbot [command] [options]\n\n")
+
+	// If there are no commands it just prints the usage.
+	if len(app.Commands) == 0 {
+		return nil
+	}
+
+	fmt.Fprintln(app.Stdout(), "Commands")
+	fmt.Fprintln(app.Stdout(), "------------------")
+	for _, v := range app.Commands {
+		if ht, ok := v.(HelpTexter); ok {
+			fmt.Fprintf(app.Stdout(), "%v\t%v\n", v.Name(), ht.HelpText())
+			continue
+		}
+
+		fmt.Fprintf(app.Stdout(), "%v\t (runs the %[1]v command)\n", v.Name())
+	}
 
 	return nil
-}
-
-func findDependencies(pwd string) (depbot.Dependencies, error) {
-	deps := depbot.Dependencies{}
-
-	goDeps, err := gomodules.FindDependencies(pwd)
-	if err != nil {
-		return deps, fmt.Errorf("error finding go dependencies, err : %w", err)
-	}
-
-	deps = append(deps, goDeps...)
-
-	jsDeps, err := jsmodules.FindDependencies(pwd)
-	if err != nil {
-		return deps, fmt.Errorf("error finding js dependencies, err : %w", err)
-	}
-
-	deps = append(deps, jsDeps...)
-
-	return deps, nil
 }

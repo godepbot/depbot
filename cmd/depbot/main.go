@@ -8,6 +8,18 @@ import (
 	"time"
 
 	"github.com/godepbot/depbot/cmd/cli"
+	"github.com/godepbot/depbot/internal/gomodules"
+	"github.com/godepbot/depbot/internal/list"
+)
+
+// app for the CLI, commands used will be added here.
+var (
+	app = &cli.App{
+		Commands: []cli.Command{
+			// find command
+			list.NewCommand(gomodules.FindDependencies),
+		},
+	}
 )
 
 func main() {
@@ -26,7 +38,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	app := &cli.App{}
 	err = app.Main(ctx, pwd, os.Args[1:])
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
