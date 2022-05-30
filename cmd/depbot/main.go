@@ -22,6 +22,7 @@ var (
 				gomodules.FindDependencies,
 				jspackages.FindPackageDependencies,
 				jspackages.FindPackageLockDependencies,
+				jspackages.FindYarnDependencies,
 			),
 		},
 	}
