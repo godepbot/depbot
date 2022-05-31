@@ -45,7 +45,7 @@ func FindYarnDependencies(wd string) (depbot.Dependencies, error) {
 				dependencies = append(dependencies, depbot.Dependency{
 					File:    jsYarnLockFile,
 					Name:    jsDependencyNameYARN,
-					Version: strings.ReplaceAll(line, "#", ""),
+					Version: strings.TrimSpace(strings.ReplaceAll(line, "#", "")),
 					Kind:    depbot.DependencyKindTool,
 				})
 				continue
