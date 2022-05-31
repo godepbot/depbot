@@ -8,11 +8,10 @@ import (
 )
 
 const (
-	gitPath             = ".git/"
-	head                = "HEAD"
-	expectedComponentes = 2
 	git                 = ".git"
+	head                = "HEAD"
 	refsPath            = "refs/"
+	expectedComponentes = 2
 )
 
 func FindLatestHash(pwd string) (string, error) {
@@ -26,6 +25,7 @@ func FindLatestHash(pwd string) (string, error) {
 
 	headContent := strings.TrimSpace(string(bytes))
 
+	/// HEAD points to a branch that is the current branch.
 	if strings.Contains(headContent, refsPath) {
 		components := strings.Split(headContent, ": ")
 
@@ -45,10 +45,10 @@ func FindLatestHash(pwd string) (string, error) {
 		return string(bytes), nil
 	}
 
+	/// HEAD points to a commit in particular.
 	if len(headContent) > 0 {
 		return headContent, nil
 	}
 
 	return "", fmt.Errorf("Oops! No hash available.")
-
 }
