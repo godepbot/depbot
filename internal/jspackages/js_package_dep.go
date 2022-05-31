@@ -11,11 +11,6 @@ import (
 	"github.com/godepbot/depbot"
 )
 
-const (
-	jsDependencyFile string = "package.json"
-	dependencyNameJs string = "Js"
-)
-
 type PackageJson struct {
 	License         string            `json:"license" db:"-"`
 	Main            string            `json:"main" db:"-"`
@@ -27,11 +22,16 @@ type PackageJson struct {
 	DevDependencies map[string]string `json:"devDependencies" db:"-"`
 }
 
-func FindDependencies(wd string) (depbot.Dependencies, error) {
+func FindPackageDependencies(wd string) (depbot.Dependencies, error) {
 	pths := []string{}
+	var hasPackageLockDeps bool
 
 	filepath.WalkDir(wd, func(path string, d fs.DirEntry, err error) error {
-		if strings.Contains(path, jsDependencyFile) {
+		if strings.Contains(path, jsPackageLockFile) {
+			hasPackageLockDeps = true
+			return nil
+		}
+		if strings.Contains(path, jsPackageFile) {
 			pths = append(pths, path)
 		}
 
@@ -39,6 +39,11 @@ func FindDependencies(wd string) (depbot.Dependencies, error) {
 	})
 
 	dependencies := depbot.Dependencies{}
+
+	if hasPackageLockDeps {
+		return dependencies, nil
+	}
+
 	for _, p := range pths {
 		openFile, err := ioutil.ReadFile(p)
 		if err != nil {
@@ -50,32 +55,45 @@ func FindDependencies(wd string) (depbot.Dependencies, error) {
 		if errU != nil {
 			return dependencies, fmt.Errorf("error parsing dependency file '%v': %w", p, errU)
 		}
-
-		dependencies = append(dependencies, depbot.Dependency{
-			File:    jsDependencyFile,
-			Version: packageJson.Version,
-			Name:    dependencyNameJs,
-			Kind:    depbot.DependencyKindLanguage,
-		})
-
-		for d := range packageJson.Dependencies {
-			dependencies = append(dependencies, depbot.Dependency{
-				File:    jsDependencyFile,
-				Name:    d,
-				Version: packageJson.Dependencies[d],
-				Kind:    depbot.DependencyKindLibrary,
-			})
-		}
-
-		for d := range packageJson.DevDependencies {
-			dependencies = append(dependencies, depbot.Dependency{
-				File:    jsDependencyFile,
-				Name:    d,
-				Version: packageJson.DevDependencies[d],
-				Kind:    depbot.DependencyKindLibrary,
-			})
-		}
+		dependencies = append(dependencies, packageDependencies(packageJson)...)
 	}
 
 	return dependencies, nil
+}
+
+func packageDependencies(p PackageJson) depbot.Dependencies {
+	dependencies := depbot.Dependencies{
+		{
+			File: jsPackageFile,
+			Name: jsDependencyNameNPM,
+			Kind: depbot.DependencyKindTool,
+		},
+		{
+			File:    jsPackageFile,
+			Version: p.Version,
+			Name:    jsDependencyNameJs,
+			Kind:    depbot.DependencyKindLanguage,
+		},
+	}
+
+	for d := range p.Dependencies {
+		dependencies = append(dependencies, depbot.Dependency{
+			File:    jsPackageFile,
+			Name:    d,
+			Version: p.Dependencies[d],
+			Kind:    depbot.DependencyKindLibrary,
+			Direct:  true,
+		})
+	}
+
+	for d := range p.DevDependencies {
+		dependencies = append(dependencies, depbot.Dependency{
+			File:    jsPackageFile,
+			Name:    d,
+			Version: p.DevDependencies[d],
+			Kind:    depbot.DependencyKindLibrary,
+		})
+	}
+
+	return dependencies
 }

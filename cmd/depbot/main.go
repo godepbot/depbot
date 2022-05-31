@@ -20,7 +20,9 @@ var (
 			// find command
 			list.NewCommand(
 				gomodules.FindDependencies,
-				jspackages.FindDependencies,
+				jspackages.FindPackageDependencies,
+				jspackages.FindPackageLockDependencies,
+				jspackages.FindYarnDependencies,
 			),
 		},
 	}
