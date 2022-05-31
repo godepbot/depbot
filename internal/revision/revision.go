@@ -1,22 +1,25 @@
-package commit
+package revision
 
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
 const (
 	gitPath             = ".git/"
-	headPath            = ".git/HEAD"
+	head                = "HEAD"
 	expectedComponentes = 2
+	git                 = ".git"
 )
 
-func FindLatestHash() (string, error) {
-
-	bytes, err := os.ReadFile(headPath)
+func FindLatestHash(pwd string) (string, error) {
+	path := filepath.Join(pwd, git, head)
+	bytes, err := os.ReadFile(path)
 
 	if err != nil {
+		fmt.Println("Error is :)", err)
 		return "", err
 	}
 
@@ -25,15 +28,16 @@ func FindLatestHash() (string, error) {
 	components := strings.Split(headContent, ": ")
 
 	if !(len(components) >= expectedComponentes) {
-		return "", fmt.Errorf("Oops! Something happened!")
+		return "", fmt.Errorf("Oops! No hash available.")
 	}
 
 	branchPath := components[1]
-	fullBranchPath := fmt.Sprintf("%s%s", gitPath, branchPath)
+	fullBranchPath := filepath.Join(pwd, git, branchPath)
+
 	bytes, err = os.ReadFile(fullBranchPath)
 
 	if err != nil {
-		return "", fmt.Errorf("Oops! Something happened!")
+		return "", fmt.Errorf("Oops! Something happened! %v", err)
 	}
 
 	return string(bytes), nil
