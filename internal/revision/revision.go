@@ -12,6 +12,7 @@ const (
 	head                = "HEAD"
 	expectedComponentes = 2
 	git                 = ".git"
+	refsPath            = "refs/"
 )
 
 func FindLatestHash(pwd string) (string, error) {
@@ -25,20 +26,29 @@ func FindLatestHash(pwd string) (string, error) {
 
 	headContent := strings.TrimSpace(string(bytes))
 
-	components := strings.Split(headContent, ": ")
+	if strings.Contains(headContent, refsPath) {
+		components := strings.Split(headContent, ": ")
 
-	if !(len(components) >= expectedComponentes) {
-		return "", fmt.Errorf("Oops! No hash available.")
+		if !(len(components) >= expectedComponentes) {
+			return "", fmt.Errorf("Oops! No hash available.")
+		}
+
+		branchPath := components[1]
+		fullBranchPath := filepath.Join(pwd, git, branchPath)
+
+		bytes, err = os.ReadFile(fullBranchPath)
+
+		if err != nil {
+			return "", fmt.Errorf("Oops! Something happened! %v", err)
+		}
+
+		return string(bytes), nil
 	}
 
-	branchPath := components[1]
-	fullBranchPath := filepath.Join(pwd, git, branchPath)
-
-	bytes, err = os.ReadFile(fullBranchPath)
-
-	if err != nil {
-		return "", fmt.Errorf("Oops! Something happened! %v", err)
+	if len(headContent) > 0 {
+		return headContent, nil
 	}
 
-	return string(bytes), nil
+	return "", fmt.Errorf("Oops! No hash available.")
+
 }

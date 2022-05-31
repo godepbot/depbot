@@ -12,7 +12,7 @@ const (
 	headContent = "ref: refs/heads/test-branch-1234"
 	headsPath   = "refs/heads"
 	branchName  = "test-branch-1234"
-	hash        = "0de1b3e18d9cd5cd96b12e608ca47eff046fed0a"
+	commitHash  = "0de1b3e18d9cd5cd96b12e608ca47eff046fed0a"
 )
 
 func Test_HeadLinkedToBranch(t *testing.T) {
@@ -47,14 +47,13 @@ func Test_HeadLinkedToBranch(t *testing.T) {
 
 	branchFile := filepath.Join(headsDir, branchName)
 
-	os.WriteFile(branchFile, []byte(hash), os.ModePerm)
+	os.WriteFile(branchFile, []byte(commitHash), os.ModePerm)
 
 	data, err := FindLatestHash(tmp)
 
-	if data != hash {
-		t.Fatalf("Got %v, but was expected %v", data, hash)
+	if data != commitHash {
+		t.Fatalf("Got %v, but was expected %v", data, commitHash)
 	}
-
 }
 
 func Test_NoGitRepository(t *testing.T) {
@@ -64,6 +63,33 @@ func Test_NoGitRepository(t *testing.T) {
 
 	if !strings.Contains(err.Error(), "no such file or directory") {
 		t.Fatalf("Result was: %v, but was expected an error including -> %v", err.Error(), "no such file or directory")
+	}
+
+}
+
+func Test_HeadLinkedToCommit(t *testing.T) {
+	tmp := t.TempDir()
+
+	gitDir := filepath.Join(tmp, ".git")
+	err := os.Mkdir(gitDir, os.ModePerm)
+
+	if err != nil {
+		fmt.Println("Error creating directory is:", err)
+		return
+	}
+
+	headPath := filepath.Join(gitDir, "HEAD")
+
+	err = os.WriteFile(headPath, []byte(commitHash), os.ModePerm)
+
+	data, err := FindLatestHash(tmp)
+
+	if err != nil {
+		fmt.Println("Error is h", err)
+	}
+
+	if data != commitHash {
+		t.Fatalf("Result was: %v, but was expected -> %v", data, commitHash)
 	}
 
 }
