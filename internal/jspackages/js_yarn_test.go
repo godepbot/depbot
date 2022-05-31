@@ -1,7 +1,6 @@
 package jspackages_test
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -167,8 +166,6 @@ func Test_Yarn_MultipleDependencies(t *testing.T) {
 		t.Fatalf("got an error but should be nil, error : %v ", errWriteFile.Error())
 		return
 	}
-
-	fmt.Println("----> ", dependencies)
 
 	tcases := []struct {
 		name    string
