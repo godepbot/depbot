@@ -8,16 +8,13 @@ import (
 )
 
 const (
-	git                 = ".git"
-	head                = "HEAD"
-	refsPath            = "refs/"
-	expectedComponentes = 2
+	git      = ".git"
+	head     = "HEAD"
+	refsPath = "refs/"
 )
 
 func FindLatestHash(pwd string) (string, error) {
-
 	headData, err := readHead(pwd)
-
 	if err != nil {
 		fmt.Println("Error is :)", err)
 		return "", err
@@ -39,7 +36,6 @@ func FindLatestHash(pwd string) (string, error) {
 func readHead(pwd string) (string, error) {
 	headPath := filepath.Join(pwd, git, head)
 	bytes, err := os.ReadFile(headPath)
-
 	if err != nil {
 		fmt.Println("Error is :)", err)
 		return "", err
@@ -51,15 +47,14 @@ func readHead(pwd string) (string, error) {
 func hashFromBranch(pwd string, headContent string) (string, error) {
 	components := strings.Split(headContent, ": ")
 
+	expectedComponentes := 2
 	if !(len(components) >= expectedComponentes) {
 		return "", fmt.Errorf("Oops! No hash available.")
 	}
 
 	branchPath := components[1]
 	fullBranchPath := filepath.Join(pwd, git, branchPath)
-
 	bytes, err := os.ReadFile(fullBranchPath)
-
 	if err != nil {
 		return "", fmt.Errorf("Oops! Something happened! %v", err)
 	}
