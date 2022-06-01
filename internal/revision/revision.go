@@ -8,9 +8,7 @@ import (
 )
 
 const (
-	git      = ".git"
-	head     = "HEAD"
-	refsPath = "refs/"
+	git = ".git"
 )
 
 func FindLatestHash(pwd string) (string, error) {
@@ -20,6 +18,7 @@ func FindLatestHash(pwd string) (string, error) {
 		return "", err
 	}
 
+	refsPath := "refs/"
 	/// HEAD points to a branch that is the current branch.
 	if strings.Contains(headData, refsPath) {
 		return hashFromBranch(pwd, headData)
@@ -34,6 +33,7 @@ func FindLatestHash(pwd string) (string, error) {
 }
 
 func readHead(pwd string) (string, error) {
+	head := "HEAD"
 	headPath := filepath.Join(pwd, git, head)
 	bytes, err := os.ReadFile(headPath)
 	if err != nil {
