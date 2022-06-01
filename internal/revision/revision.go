@@ -14,7 +14,7 @@ const (
 func FindLatestHash(pwd string) (string, error) {
 	headData, err := readHead(pwd)
 	if err != nil {
-		return "", fmt.Errorf("Error is %w", err)
+		return "", err
 	}
 
 	refsPath := "refs/"
@@ -32,11 +32,10 @@ func FindLatestHash(pwd string) (string, error) {
 }
 
 func readHead(pwd string) (string, error) {
-	head := "HEAD"
-	headPath := filepath.Join(pwd, git, head)
+	headPath := filepath.Join(pwd, git, "HEAD")
 	bytes, err := os.ReadFile(headPath)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("Error is %w", err)
 	}
 
 	return strings.TrimSpace(string(bytes)), nil
