@@ -17,9 +17,8 @@ func FindLatestHash(pwd string) (string, error) {
 		return "", err
 	}
 
-	refsPath := "refs/"
 	/// HEAD points to a branch that is the current branch.
-	if strings.Contains(headData, refsPath) {
+	if strings.Contains(headData, "refs/") {
 		return hashFromBranch(pwd, headData)
 	}
 

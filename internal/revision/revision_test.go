@@ -21,15 +21,13 @@ func Test_HeadLinkedToBranch(t *testing.T) {
 	}
 
 	headPath := filepath.Join(gitDir, "HEAD")
-	headContent := "ref: refs/heads/test-branch-1234"
-	err = os.WriteFile(headPath, []byte(headContent), os.ModePerm)
+	err = os.WriteFile(headPath, []byte("ref: refs/heads/test-branch-1234"), os.ModePerm)
 	if err != nil {
 		t.Fatalf("Error writing file is: %v", err)
 		return
 	}
 
-	headsPath := "refs/heads"
-	headsDir := filepath.Join(gitDir, headsPath)
+	headsDir := filepath.Join(gitDir, "refs/heads")
 
 	err = os.MkdirAll(headsDir, os.ModePerm)
 	if err != nil {
@@ -37,8 +35,7 @@ func Test_HeadLinkedToBranch(t *testing.T) {
 		return
 	}
 
-	branchName := "test-branch-1234"
-	branchFile := filepath.Join(headsDir, branchName)
+	branchFile := filepath.Join(headsDir, "test-branch-1234")
 	os.WriteFile(branchFile, []byte(commitHash), os.ModePerm)
 
 	data, err := FindLatestHash(tmp)
