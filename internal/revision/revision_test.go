@@ -1,7 +1,6 @@
 package revision
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -13,13 +12,11 @@ const (
 )
 
 func Test_HeadLinkedToBranch(t *testing.T) {
-
-	fmt.Println("Executing this test!")
 	tmp := t.TempDir()
 	gitDir := filepath.Join(tmp, ".git")
 	err := os.Mkdir(gitDir, os.ModePerm)
 	if err != nil {
-		fmt.Println("Error creating directory is:", err)
+		t.Fatalf("Error %v creating directory at %v", gitDir, err)
 		return
 	}
 
@@ -27,7 +24,7 @@ func Test_HeadLinkedToBranch(t *testing.T) {
 	headContent := "ref: refs/heads/test-branch-1234"
 	err = os.WriteFile(headPath, []byte(headContent), os.ModePerm)
 	if err != nil {
-		fmt.Println("Error writing file is:", err)
+		t.Fatalf("Error writing file is: %v", err)
 		return
 	}
 
@@ -36,7 +33,7 @@ func Test_HeadLinkedToBranch(t *testing.T) {
 
 	err = os.MkdirAll(headsDir, os.ModePerm)
 	if err != nil {
-		fmt.Println("Error creating directory is:", err)
+		t.Fatalf("Error creating directory is: %v", err)
 		return
 	}
 
@@ -67,14 +64,14 @@ func Test_HeadLinkedToCommit(t *testing.T) {
 	gitDir := filepath.Join(tmp, ".git")
 	err := os.Mkdir(gitDir, os.ModePerm)
 	if err != nil {
-		fmt.Println("Error creating directory is:", err)
+		t.Fatalf("Error %v creating directory at %v", gitDir, err)
 		return
 	}
 
 	headPath := filepath.Join(gitDir, "HEAD")
 	err = os.WriteFile(headPath, []byte(commitHash), os.ModePerm)
 	if err != nil {
-		fmt.Println("Error is h", err)
+		t.Fatalf("Error %v writing file at %v", err, headPath)
 	}
 
 	data, _ := FindLatestHash(tmp)

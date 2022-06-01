@@ -44,8 +44,7 @@ func readHead(pwd string) (string, error) {
 func hashFromBranch(pwd string, headContent string) (string, error) {
 	components := strings.Split(headContent, ": ")
 
-	expectedComponentes := 2
-	if !(len(components) >= expectedComponentes) {
+	if len(components) < 2 {
 		return "", fmt.Errorf("Oops! No hash available.")
 	}
 
