@@ -7,10 +7,6 @@ import (
 	"testing"
 )
 
-const (
-	commitHash = "0de1b3e18d9cd5cd96b12e608ca47eff046fed0a"
-)
-
 func Test_HeadLinkedToBranch(t *testing.T) {
 	tmp := t.TempDir()
 	gitDir := filepath.Join(tmp, ".git")
@@ -35,6 +31,7 @@ func Test_HeadLinkedToBranch(t *testing.T) {
 		return
 	}
 
+	commitHash := "0de1b3e18d9cd5cd96b12e608ca47eff046fed0a"
 	branchFile := filepath.Join(headsDir, "test-branch-1234")
 	os.WriteFile(branchFile, []byte(commitHash), os.ModePerm)
 
@@ -65,6 +62,7 @@ func Test_HeadLinkedToCommit(t *testing.T) {
 		return
 	}
 
+	commitHash := "3cb32c9ec6ae2f88dbee1e8be923a691dd73427c"
 	headPath := filepath.Join(gitDir, "HEAD")
 	err = os.WriteFile(headPath, []byte(commitHash), os.ModePerm)
 	if err != nil {

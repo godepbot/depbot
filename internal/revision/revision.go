@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	git = ".git"
+	gitDir = ".git"
 )
 
 func FindLatestHash(pwd string) (string, error) {
@@ -31,7 +31,7 @@ func FindLatestHash(pwd string) (string, error) {
 }
 
 func readHead(pwd string) (string, error) {
-	headPath := filepath.Join(pwd, git, "HEAD")
+	headPath := filepath.Join(pwd, gitDir, "HEAD")
 	bytes, err := os.ReadFile(headPath)
 	if err != nil {
 		return "", fmt.Errorf("Error is %w", err)
@@ -48,7 +48,7 @@ func hashFromBranch(pwd string, headContent string) (string, error) {
 	}
 
 	branchPath := components[1]
-	fullBranchPath := filepath.Join(pwd, git, branchPath)
+	fullBranchPath := filepath.Join(pwd, gitDir, branchPath)
 	bytes, err := os.ReadFile(fullBranchPath)
 	if err != nil {
 		return "", fmt.Errorf("Oops! Something happened! %v", err)
