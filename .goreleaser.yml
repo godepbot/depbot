@@ -98,13 +98,3 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
-
-brews:
-  -
-    name: 'depbot'
-    tap:
-      owner: depbot
-      name: homebrew-tap
-    homepage: "https://depbot.com"
-    description: "Depbot allows to understand your code dependencies across repositories."
-    skip_upload: "auto"
