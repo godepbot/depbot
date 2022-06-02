@@ -1,4 +1,4 @@
-GOLANG_CROSS_VERSION  ?= v1.17.6
+GOLANG_CROSS_VERSION  ?= v1.18.2
 PACKAGE_NAME          := github.com/gobuffalo/pop
 
 .PHONY: release
