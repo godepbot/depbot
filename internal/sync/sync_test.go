@@ -19,7 +19,7 @@ func mockEndPoint(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		w.WriteHeader(http.StatusUnprocessableEntity)
-		w.Write([]byte(depbot.MessageError_NoSyncDep))
+		w.Write([]byte(depbot.ErrorMessage_NoSyncDep.Error()))
 	}
 
 	if strings.Contains(string(body), "contains something wrong") {
@@ -86,8 +86,8 @@ func TestSyncCommand(t *testing.T) {
 		c.SetClient(server.Client())
 
 		err := c.Main(context.Background(), dir, []string{})
-		if err == nil {
-			t.Fatalf("expected error to contain: '%v'", depbot.MessageError_NoDependencies)
+		if err == nil && (err != depbot.ErrorMessage_NoDependencies) {
+			t.Errorf("expected output to contain '%v'", depbot.ErrorMessage_NoDependencies)
 		}
 	})
 
@@ -153,8 +153,8 @@ func TestSyncCommand(t *testing.T) {
 		c.SetClient(server.Client())
 
 		err := c.Main(context.Background(), dir, []string{})
-		if err == nil && !strings.Contains(err.Error(), depbot.MessageError_NoSyncDep) {
-			t.Errorf("expected output to contain '%v'", depbot.MessageError_NoSyncDep)
+		if err == nil && (err != depbot.ErrorMessage_NoSyncDep) {
+			t.Errorf("expected output to contain '%v'", depbot.ErrorMessage_NoSyncDep)
 		}
 	})
 
@@ -166,9 +166,8 @@ func TestSyncCommand(t *testing.T) {
 		c.SetClient(server.Client())
 
 		err := c.Main(context.Background(), dir, []string{})
-
-		if err == nil {
-			t.Errorf("expected output to contain '%v'", depbot.MessageError_MissingApiKey)
+		if err == nil && (err != depbot.ErrorMessage_MissingApiKey) {
+			t.Errorf("expected output to contain '%v'", depbot.ErrorMessage_MissingApiKey)
 		}
 	})
 

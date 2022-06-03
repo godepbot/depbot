@@ -37,7 +37,7 @@ func (c *Command) SetClient(client *http.Client) {
 func (c *Command) Main(ctx context.Context, pwd string, args []string) error {
 	apiKey := os.Getenv(depbot.EnvVariable_ApiKey)
 	if apiKey == "" {
-		return fmt.Errorf(depbot.MessageError_MissingApiKey)
+		return depbot.ErrorMessage_MissingApiKey
 	}
 
 	hash, err := revision.FindLatestHash(pwd)
@@ -56,7 +56,7 @@ func (c *Command) Main(ctx context.Context, pwd string, args []string) error {
 	}
 
 	if len(deps) == 0 {
-		return fmt.Errorf(depbot.MessageError_NoDependencies)
+		return depbot.ErrorMessage_NoDependencies
 	}
 
 	jm, err := json.Marshal(deps)
@@ -90,7 +90,7 @@ func (c *Command) Main(ctx context.Context, pwd string, args []string) error {
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := ioutil.ReadAll(resp.Body)
-		return fmt.Errorf("%v. error detail: %v", depbot.MessageError_NoSyncDep, string(body))
+		return fmt.Errorf("%v. error detail: %v", depbot.ErrorMessage_NoSyncDep, string(body))
 	}
 
 	defer resp.Body.Close()
