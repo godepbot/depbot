@@ -17,7 +17,7 @@ import (
 
 const (
 	depSynchronized    = "dependencies synchronized"
-	depNotSynchronized = "Could not sync the dependencies. Error detail"
+	depNotSynchronized = "could not sync the dependencies. Error detail"
 )
 
 func mockEndPoint(w http.ResponseWriter, r *http.Request) {
@@ -79,6 +79,7 @@ func TestSyncCommand(t *testing.T) {
 
 	server := httptest.NewServer(http.HandlerFunc(mockEndPoint))
 	defer server.Close()
+
 	os.Setenv("DEPBOT_SERVER_ADDR", server.URL)
 	os.Setenv("DEPBOT_API_KEY", "An API Key")
 
@@ -91,12 +92,8 @@ func TestSyncCommand(t *testing.T) {
 		c.SetClient(server.Client())
 
 		err := c.Main(context.Background(), dir, []string{})
-		if err != nil {
-			t.Fatalf("error running find command: %v", err)
-		}
-
-		if !bytes.Contains(out.Bytes(), []byte("No dependendies found to sync")) {
-			t.Errorf("expected output to contain 'No dependendies found to sync'")
+		if err == nil {
+			t.Fatalf("expected error to contain: 'No dependendies found to sync'")
 		}
 	})
 
@@ -162,11 +159,7 @@ func TestSyncCommand(t *testing.T) {
 		c.SetClient(server.Client())
 
 		err := c.Main(context.Background(), dir, []string{})
-		if err != nil {
-			t.Fatalf("error running sync command: %v", err)
-		}
-
-		if !bytes.Contains(out.Bytes(), []byte(depNotSynchronized)) {
+		if err == nil && !strings.Contains(err.Error(), depNotSynchronized) {
 			t.Errorf("expected output to contain '%v'", depNotSynchronized)
 		}
 	})

@@ -47,8 +47,7 @@ func (c *Command) Main(ctx context.Context, pwd string, args []string) error {
 	}
 
 	if len(deps) == 0 {
-		fmt.Fprintln(c.stdout, "No dependendies found to sync")
-		return nil
+		return fmt.Errorf("no dependendies found to sync")
 	}
 
 	hash, err := revision.FindLatestHash(pwd)
@@ -81,14 +80,12 @@ func (c *Command) Main(ctx context.Context, pwd string, args []string) error {
 
 	resp, err := client.Post()
 	if err != nil {
-		fmt.Fprintln(c.stdout, "Could not sync the dependencies. Error detail: ", err)
-		return err
+		return fmt.Errorf("could not sync the dependencies. Error detail: %w", err)
 	}
 
 	if resp.StatusCode != 200 {
 		body, _ := ioutil.ReadAll(resp.Body)
-		fmt.Fprintln(c.stdout, "Could not sync the dependencies. Error detail: ", string(body))
-		return err
+		return fmt.Errorf("could not sync the dependencies. Error detail: %v", string(body))
 	}
 
 	defer resp.Body.Close()
