@@ -11,6 +11,7 @@ import (
 	"github.com/godepbot/depbot/internal/gomodules"
 	"github.com/godepbot/depbot/internal/jspackages"
 	"github.com/godepbot/depbot/internal/list"
+	"github.com/godepbot/depbot/internal/sync"
 )
 
 // app for the CLI, commands used will be added here.
@@ -19,6 +20,12 @@ var (
 		Commands: []cli.Command{
 			// find command
 			list.NewCommand(
+				gomodules.FindDependencies,
+				jspackages.FindPackageDependencies,
+				jspackages.FindPackageLockDependencies,
+				jspackages.FindYarnDependencies,
+			),
+			sync.NewCommand(
 				gomodules.FindDependencies,
 				jspackages.FindPackageDependencies,
 				jspackages.FindPackageLockDependencies,
