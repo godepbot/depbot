@@ -15,17 +15,11 @@ import (
 	"github.com/godepbot/depbot/internal/sync"
 )
 
-const (
-	depSynchronized    = "dependencies synchronized"
-	depNotSynchronized = "could not sync the dependencies. Error detail"
-)
-
 func mockEndPoint(w http.ResponseWriter, r *http.Request) {
-
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		w.WriteHeader(http.StatusUnprocessableEntity)
-		w.Write([]byte(depNotSynchronized))
+		w.Write([]byte(depbot.MessageError_NoSyncDep))
 	}
 
 	if strings.Contains(string(body), "contains something wrong") {
@@ -33,7 +27,7 @@ func mockEndPoint(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("bad request because i want to be like it"))
 	} else {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(depSynchronized))
+		w.Write([]byte(depbot.MessageSucces_SyncDep))
 	}
 }
 
@@ -80,8 +74,8 @@ func TestSyncCommand(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(mockEndPoint))
 	defer server.Close()
 
-	os.Setenv("DEPBOT_SERVER_ADDR", server.URL)
-	os.Setenv("DEPBOT_API_KEY", "An API Key")
+	os.Setenv(depbot.EnvVariable_ServerADDR, server.URL)
+	os.Setenv(depbot.EnvVariable_ApiKey, "An API Key")
 
 	t.Run("No dependency found to sync", func(t *testing.T) {
 
@@ -93,7 +87,7 @@ func TestSyncCommand(t *testing.T) {
 
 		err := c.Main(context.Background(), dir, []string{})
 		if err == nil {
-			t.Fatalf("expected error to contain: 'No dependendies found to sync'")
+			t.Fatalf("expected error to contain: '%v'", depbot.MessageError_NoDependencies)
 		}
 	})
 
@@ -109,8 +103,8 @@ func TestSyncCommand(t *testing.T) {
 			t.Fatalf("error running sync command: %v", err)
 		}
 
-		if !bytes.Contains(out.Bytes(), []byte(depSynchronized)) {
-			t.Errorf("expected output to contain '%v'", depSynchronized)
+		if !bytes.Contains(out.Bytes(), []byte(depbot.MessageSucces_SyncDep)) {
+			t.Errorf("expected output to contain '%v'", depbot.MessageSucces_SyncDep)
 		}
 
 		if !bytes.Contains(out.Bytes(), []byte("3")) {
@@ -133,8 +127,8 @@ func TestSyncCommand(t *testing.T) {
 			t.Fatalf("error running sync command: %v", err)
 		}
 
-		if !bytes.Contains(out.Bytes(), []byte(depSynchronized)) {
-			t.Errorf("expected output to contain '%v'", depSynchronized)
+		if !bytes.Contains(out.Bytes(), []byte(depbot.MessageSucces_SyncDep)) {
+			t.Errorf("expected output to contain '%v'", depbot.MessageSucces_SyncDep)
 		}
 
 		if !bytes.Contains(out.Bytes(), []byte("6")) {
@@ -159,8 +153,22 @@ func TestSyncCommand(t *testing.T) {
 		c.SetClient(server.Client())
 
 		err := c.Main(context.Background(), dir, []string{})
-		if err == nil && !strings.Contains(err.Error(), depNotSynchronized) {
-			t.Errorf("expected output to contain '%v'", depNotSynchronized)
+		if err == nil && !strings.Contains(err.Error(), depbot.MessageError_NoSyncDep) {
+			t.Errorf("expected output to contain '%v'", depbot.MessageError_NoSyncDep)
+		}
+	})
+
+	t.Run("Error Api key", func(t *testing.T) {
+		os.Setenv(depbot.EnvVariable_ApiKey, "")
+		out := bytes.NewBuffer([]byte{})
+		c := sync.NewCommand(fakeFinder)
+		c.SetIO(out, out, nil)
+		c.SetClient(server.Client())
+
+		err := c.Main(context.Background(), dir, []string{})
+
+		if err == nil {
+			t.Errorf("expected output to contain '%v'", depbot.MessageError_MissingApiKey)
 		}
 	})
 

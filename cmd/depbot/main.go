@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/godepbot/depbot"
 	"github.com/godepbot/depbot/cmd/cli"
 	"github.com/godepbot/depbot/internal/gomodules"
 	"github.com/godepbot/depbot/internal/jspackages"
@@ -14,23 +15,20 @@ import (
 	"github.com/godepbot/depbot/internal/sync"
 )
 
+var finders = []depbot.FinderFn{
+	gomodules.FindDependencies,
+	jspackages.FindPackageDependencies,
+	jspackages.FindPackageLockDependencies,
+	jspackages.FindYarnDependencies,
+}
+
 // app for the CLI, commands used will be added here.
 var (
 	app = &cli.App{
 		Commands: []cli.Command{
 			// find command
-			list.NewCommand(
-				gomodules.FindDependencies,
-				jspackages.FindPackageDependencies,
-				jspackages.FindPackageLockDependencies,
-				jspackages.FindYarnDependencies,
-			),
-			sync.NewCommand(
-				gomodules.FindDependencies,
-				jspackages.FindPackageDependencies,
-				jspackages.FindPackageLockDependencies,
-				jspackages.FindYarnDependencies,
-			),
+			list.NewCommand(finders...),
+			sync.NewCommand(finders...),
 		},
 	}
 )

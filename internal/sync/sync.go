@@ -8,12 +8,11 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
-	"strings"
+	"os"
 	"text/tabwriter"
 	"time"
 
 	"github.com/godepbot/depbot"
-	"github.com/godepbot/depbot/internal/depbotserver"
 	"github.com/godepbot/depbot/internal/revision"
 )
 
@@ -36,6 +35,16 @@ func (c *Command) SetClient(client *http.Client) {
 }
 
 func (c *Command) Main(ctx context.Context, pwd string, args []string) error {
+	apiKey := os.Getenv(depbot.EnvVariable_ApiKey)
+	if apiKey == "" {
+		return fmt.Errorf(depbot.MessageError_MissingApiKey)
+	}
+
+	hash, err := revision.FindLatestHash(pwd)
+	if err != nil {
+		return err
+	}
+
 	deps := depbot.Dependencies{}
 	for _, df := range c.finders {
 		dx, err := df(pwd)
@@ -47,12 +56,7 @@ func (c *Command) Main(ctx context.Context, pwd string, args []string) error {
 	}
 
 	if len(deps) == 0 {
-		return fmt.Errorf("no dependendies found to sync")
-	}
-
-	hash, err := revision.FindLatestHash(pwd)
-	if err != nil {
-		return err
+		return fmt.Errorf(depbot.MessageError_NoDependencies)
 	}
 
 	jm, err := json.Marshal(deps)
@@ -60,32 +64,33 @@ func (c *Command) Main(ctx context.Context, pwd string, args []string) error {
 		return err
 	}
 
+	url := os.Getenv(depbot.EnvVariable_ServerADDR)
+	if url == "" {
+		url = "http://app.depbot.com/api/sync"
+	}
+
 	if c.client == nil {
 		c.client = new(http.Client)
 	}
 
-	key := depbotserver.EnvValueForKey(depbotserver.DEPBOT_API_KEY)
-	url := depbotserver.EnvValueForKey(depbotserver.DEPBOT_SERVER_ADDR)
-
-	client := depbotserver.DepBotClient{
-		Client: c.client,
-		Input: depbotserver.DepBotInput{
-			Time: time.Now().Unix(),
-			KEY:  key,
-			URL:  url,
-			Body: bytes.NewBuffer(jm),
-			Hash: strings.ReplaceAll(hash, "\n", ""),
-		},
-	}
-
-	resp, err := client.Post()
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(jm))
 	if err != nil {
-		return fmt.Errorf("could not sync the dependencies. Error detail: %w", err)
+		return fmt.Errorf("error creating new request %w", err)
 	}
 
-	if resp.StatusCode != 200 {
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", apiKey))
+	req.Header.Set("X-Revision-Hash", hash)
+	req.Header.Set("X-Timestamp", fmt.Sprintf("%v", time.Now().Unix()))
+
+	resp, err := c.client.Do(req)
+	if err != nil {
+		return fmt.Errorf("error doing request %w", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
 		body, _ := ioutil.ReadAll(resp.Body)
-		return fmt.Errorf("could not sync the dependencies. Error detail: %v", string(body))
+		return fmt.Errorf("%v. error detail: %v", depbot.MessageError_NoSyncDep, string(body))
 	}
 
 	defer resp.Body.Close()
@@ -93,15 +98,11 @@ func (c *Command) Main(ctx context.Context, pwd string, args []string) error {
 	w := new(tabwriter.Writer)
 	w.Init(c.stdout, 0, 0, 0, 0, 0)
 
-	fmt.Fprintf(w, "%v dependencies synchronized.", len(deps))
+	fmt.Fprintf(w, "%v %v", len(deps), depbot.MessageSucces_SyncDep)
 	fmt.Fprintln(w)
 	w.Flush()
 
 	return nil
-}
-
-func Send(jm []byte) {
-	panic("unimplemented")
 }
 
 func (c *Command) SetIO(stderr io.Writer, stdout io.Writer, stdin io.Reader) {
