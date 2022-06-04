@@ -3,7 +3,7 @@
 ---
 builds:
 - id: depbot_darwin
-  binary: soda
+  binary: depbot
   main: cmd/depbot/main.go
   goos:
     - darwin
@@ -18,7 +18,7 @@ builds:
     - sqlite
 
 - id: depbot_darwin_arm64
-  binary: soda
+  binary: depbot
   main: cmd/depbot/main.go
   goos:
     - darwin
@@ -33,7 +33,7 @@ builds:
     - sqlite
 
 - id: depbot_linux
-  binary: soda
+  binary: depbot
   main: cmd/depbot/main.go
   env:
     - CGO_ENABLED=0
@@ -47,7 +47,7 @@ builds:
     - 386
 
 - id: depbot_windows_i686
-  binary: soda
+  binary: depbot
   main: cmd/depbot/main.go
   ldflags:
     - "-extldflags '-static'"
@@ -64,7 +64,7 @@ builds:
     - 386
 
 - id: depbot_windows_x64
-  binary: soda
+  binary: depbot
   main: cmd/depbot/main.go
   ldflags:
     - "-extldflags '-static'"
@@ -82,6 +82,7 @@ builds:
 
 archives:
   -
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
     format_overrides:
       - goos: windows
         format: zip
