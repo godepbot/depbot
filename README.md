@@ -68,21 +68,33 @@ golang.org/x/mod        v0.5.1                                  go.mod  false
 golang.org/x/xerrors    v0.0.0-20191011141410-1b5146add898      go.mod  false
 ```
 
-## sync
+## Sync
 
-The sync command synchronizes the dependencies to a given Depbot server. The command looks for the DEPBOT_API_KEY DEPBOT_SERVER_URL environment variables when synchronizing. If the DEPBOT_API_KEY is not set the command errors.
+The sync command POST's dependencies to the server running at the `DEPBOT_SERVER_ADDR` address. It requires the `DEPBOT_API_KEY` or `--api-key` flag to run, otherwise it errors.
+
+Here is an example specifying the key as an environment variable:
 
 ```sh
-$ depbot sync
+$ DEPBOT_API_KEY=AAAA depbot sync
 
 Success! 34 Dependencies synchronized.
 ```
 
-## Running in development
+It can also be specified by the `--api-key` flag.
 
-Assuming you have Go installed in your machine you can invoke the Depbot command by running:
+```sh
+# Key specified with the --api-key flag
+$ depbot sync --api-key=AAAA
 
-```bash
-$ go run ./cmd/depbot
+Success! 34 Dependencies synchronized.
+```
+
+And the command errors if the key is not specified.
+
+```sh
+# No API Key specified
+$ depbot sync
+
+Error: No API Key specified.
 ```
 
