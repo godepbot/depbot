@@ -40,7 +40,7 @@ $ mv depbot ~/bin/depbot
 ```
 
 
-# Installing from source
+### Installing from source
 Alternative, if you have the Go toolkit installed you can use the Go command to install from source.
 
 ```bash
