@@ -37,7 +37,7 @@ func (c *Command) SetClient(client *http.Client) {
 func (c *Command) Main(ctx context.Context, pwd string, args []string) error {
 	apiKey := os.Getenv(depbot.EnvVariable_ApiKey)
 	if apiKey == "" {
-		return depbot.ErrorMessage_MissingApiKey
+		return depbot.ErrorMissingApiKey
 	}
 
 	hash, err := revision.FindLatestHash(pwd)
@@ -56,7 +56,7 @@ func (c *Command) Main(ctx context.Context, pwd string, args []string) error {
 	}
 
 	if len(deps) == 0 {
-		return depbot.ErrorMessage_NoDependencies
+		return depbot.ErrorNoDependenciesFound
 	}
 
 	jm, err := json.Marshal(deps)
@@ -90,7 +90,7 @@ func (c *Command) Main(ctx context.Context, pwd string, args []string) error {
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := ioutil.ReadAll(resp.Body)
-		return fmt.Errorf("%v. error detail: %v", depbot.ErrorMessage_NoSyncDep, string(body))
+		return fmt.Errorf("%v. error detail: %v", depbot.ErrorNoSyncDep.Error(), string(body))
 	}
 
 	defer resp.Body.Close()
@@ -98,7 +98,7 @@ func (c *Command) Main(ctx context.Context, pwd string, args []string) error {
 	w := new(tabwriter.Writer)
 	w.Init(c.stdout, 0, 0, 0, 0, 0)
 
-	fmt.Fprintf(w, "%v %v", len(deps), depbot.MessageSucces_SyncDep)
+	fmt.Fprintf(w, "%v dependencies synchronized.", len(deps))
 	fmt.Fprintln(w)
 	w.Flush()
 
