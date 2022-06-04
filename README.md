@@ -9,7 +9,26 @@ Depbot is a CLI tool that identifies dependencies in a given source code reposit
 
 ## Installation
 
-To install depbot, run:
+The first option to install the Depbot agent is to download a precompiled binary from [GitHub](github.com/godepbot/depbot/releases).
+
+### GNU / Linux
+```sh
+$ wget https://github.com/godepbot/depbot/releases/latest/download/depbot_Linux_x86_64.tar.gz
+$ tar -xvzf depbot_Linux_x86_64.tar.gz
+$ sudo mv depbot /usr/local/bin/depbot
+```
+
+### MacOS
+```sh
+$ curl -OL https://github.com/godepbot/depbot/releases/latest/download/depbot_Darwin_x86_64.tar.gz
+$ tar -xvzf depbot_Darwin_x86_64.tar.gz
+$ sudo mv depbot /usr/local/bin/depbot
+
+# or if you have ~/bin folder setup in the environment PATH variable
+$ mv depbot ~/bin/depbot
+```
+
+Also, if you have the Go toolkit installed you can run.
 
 ```bash
 $ go install github.com/godepbot/depbot/cmd/depbot@latest
