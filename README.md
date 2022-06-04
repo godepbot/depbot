@@ -13,20 +13,11 @@ To install the Depbot agent you can download to download a precompiled binary fr
 
 ### Using Gobinaries
 ```sh
-$ wget https://github.com/godepbot/depbot/releases/download/v0.1.4-beta.3/depbot_linux_amd64.tar.gz
+$ wget https://github.com/godepbot/depbot/releases/latest/download/depbot_linux_amd64.tar.gz
 $ tar -xvzf depbot_linux_amd64.tar.gz
 $ sudo mv depbot /usr/local/bin/depbot
 ```
 ### MacOS
-#### Intel / 64-bit
-```sh
-$ curl -OL https://github.com/godepbot/depbot/releases/download/v0.1.4-beta.3/depbot_darwin_amd64.tar.gz
-$ tar -xvzf depbot_darwin_amd64.tar.gz
-$ sudo mv depbot /usr/local/bin/depbot
-
-# or if you have ~/bin folder setup in the environment PATH variable
-$ mv depbot ~/bin/depbot
-```
 
 #### M1 Chip
 
@@ -38,6 +29,17 @@ $ sudo mv depbot /usr/local/bin/depbot
 # or if you have ~/bin folder setup in the environment PATH variable
 $ mv depbot ~/bin/depbot
 ```
+#### Intel / 64-bit
+```sh
+$ curl -OL https://github.com/godepbot/depbot/releases/latest/download/depbot_darwin_amd64.tar.gz
+$ tar -xvzf depbot_darwin_amd64.tar.gz
+$ sudo mv depbot /usr/local/bin/depbot
+
+# or if you have ~/bin folder setup in the environment PATH variable
+$ mv depbot ~/bin/depbot
+```
+
+
 # Installing from source
 Alternative, if you have the Go toolkit installed you can use the Go command to install from source.
 
