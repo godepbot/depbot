@@ -32,6 +32,14 @@ $ sudo mv depbot /usr/local/bin/depbot
 $ mv depbot ~/bin/depbot
 ```
 
+### Linux
+```
+$ wget https://github.com/godepbot/depbot/releases/latest/download/depbot_linux_arm64.tar.gz
+$ tar -xvzf depbot_linux_arm64.tar.gz
+$ sudo mv depbot /usr/local/bin/depbot
+```
+
+
 
 ### Installing from source
 Alternative, if you have the Go toolkit installed you can use the Go command to install from source.
