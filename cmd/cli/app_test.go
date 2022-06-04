@@ -25,15 +25,17 @@ func (t testCommand) Main(ctx context.Context, pwd string, args []string) error 
 
 func TestUsage(t *testing.T) {
 	out := bytes.NewBuffer([]byte{})
-	app := &cli.App{
-		Commands: []cli.Command{
-			testCommand("test"),
-			testCommand("other"),
-		},
-		IO: cli.IO{
-			Out: out,
-			Err: out,
-		},
+
+	commands := []cli.Command{
+		testCommand("test"),
+		testCommand("other"),
+	}
+
+	app := cli.NewApp(commands...)
+
+	app.IO = cli.IO{
+		Out: out,
+		Err: out,
 	}
 
 	err := app.Usage()
@@ -49,14 +51,24 @@ func TestUsage(t *testing.T) {
 		t.Fatalf("expected output to contain 'Commands")
 	}
 
-	for _, v := range app.Commands {
+	for _, v := range commands {
 		if !bytes.Contains(out.Bytes(), []byte(v.Name())) {
-			t.Fatalf("expected output to contain '%v'", v.Name())
+			t.Fatalf("expected output to contain '%v'", v)
 		}
 
 		if ht, ok := v.(cli.HelpTexter); ok && !bytes.Contains(out.Bytes(), []byte(ht.HelpText())) {
 			t.Fatalf("expected output to contain '%v'", ht.HelpText())
 		}
+	}
+
+	// Making sure the help text is there.
+	h := &cli.HelpCommand{}
+	if !bytes.Contains(out.Bytes(), []byte(h.Name())) {
+		t.Fatalf("expected output to contain '%v'", h.Name())
+	}
+
+	if !bytes.Contains(out.Bytes(), []byte(h.HelpText())) {
+		t.Fatalf("expected output to contain '%v'", h.HelpText())
 	}
 
 }

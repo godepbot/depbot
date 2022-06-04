@@ -8,7 +8,7 @@ import (
 type App struct {
 	IO
 
-	Commands []Command
+	commands []Command
 }
 
 // findCommand with given args, if no args passed
@@ -18,7 +18,7 @@ func (app *App) findCommand(args []string) Command {
 		return nil
 	}
 
-	for _, v := range app.Commands {
+	for _, v := range app.commands {
 		if v.Name() == args[0] {
 			return v
 		}
@@ -57,13 +57,13 @@ func (app *App) Usage() error {
 	fmt.Fprint(app.Stdout(), "Usage: depbot [command] [options]\n\n")
 
 	// If there are no commands it just prints the usage.
-	if len(app.Commands) == 0 {
+	if len(app.commands) == 0 {
 		return nil
 	}
 
 	fmt.Fprintln(app.Stdout(), "Commands")
 	fmt.Fprintln(app.Stdout(), "------------------")
-	for _, v := range app.Commands {
+	for _, v := range app.commands {
 		if ht, ok := v.(HelpTexter); ok {
 			fmt.Fprintf(app.Stdout(), "%v\t%v\n", v.Name(), ht.HelpText())
 			continue
@@ -72,5 +72,23 @@ func (app *App) Usage() error {
 		fmt.Fprintf(app.Stdout(), "%v\t (runs the %[1]v command)\n", v.Name())
 	}
 
+	fmt.Fprintln(app.Stdout(), "\nFor command specific information use the help command, p.e.")
+	fmt.Fprintln(app.Stdout(), "$ depbot help [command]")
+
 	return nil
+}
+
+// NewApp creates a CLI app with the given commands.
+// It prepends the `help` command to the list of commands.
+func NewApp(commands ...Command) *App {
+	// Adding the help command always.
+	cmms := []Command{
+		&HelpCommand{
+			commands: commands,
+		},
+	}
+
+	return &App{
+		commands: append(cmms, commands...),
+	}
 }

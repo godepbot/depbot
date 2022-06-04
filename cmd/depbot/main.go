@@ -13,22 +13,17 @@ import (
 	"github.com/godepbot/depbot/internal/list"
 )
 
-// app for the CLI, commands used will be added here.
-var (
-	app = &cli.App{
-		Commands: []cli.Command{
-			// find command
-			list.NewCommand(
-				gomodules.FindDependencies,
-				jspackages.FindPackageDependencies,
-				jspackages.FindPackageLockDependencies,
-				jspackages.FindYarnDependencies,
-			),
-		},
-	}
-)
-
 func main() {
+	app := cli.NewApp(
+		// list command with
+		list.NewCommand(
+			gomodules.FindDependencies,
+			jspackages.FindPackageDependencies,
+			jspackages.FindPackageLockDependencies,
+			jspackages.FindYarnDependencies,
+		),
+	)
+
 	ctx := context.Background()
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt)
 	defer cancel()
