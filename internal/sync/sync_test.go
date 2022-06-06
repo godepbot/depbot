@@ -172,42 +172,32 @@ func TestSyncCommand(t *testing.T) {
 		}
 	})
 
-	t.Run("Sync command with args", func(t *testing.T) {
+	t.Run("Sync command with args, Multiple finders, same result", func(t *testing.T) {
 		out := bytes.NewBuffer([]byte{})
-		c := sync.NewCommand(fakeFinder)
+
+		c := sync.NewCommand(
+			fakeFinder,
+			fakeFinder,
+		)
+
 		c.SetIO(out, out, nil)
 		c.SetClient(server.Client())
 
-		err := c.Main(context.Background(), dir, []string{})
-		if err == nil && (err != sync.ErrorMissingApiKey) {
-			t.Errorf("expected output to contain '%v'", sync.ErrorMissingApiKey)
-		}
+		os.Setenv(sync.DepbotServerAddr, "")
+		os.Setenv(sync.DepbotApiKey, "")
 
-		err = c.Main(context.Background(), dir, []string{"--api-key=API_KEY"})
+		err := c.Main(context.Background(), dir, []string{"--api-key=Other_Key", fmt.Sprintf("--server-address=%v", server.URL)})
 		if err != nil {
-			t.Errorf("expected output to no contain errors")
+			t.Errorf("expected to not contain error, got %v", err.Error())
 		}
 
-		if os.Getenv(sync.DepbotApiKey) != "API_KEY" {
-			t.Errorf("expected env variable to be 'API_KEY'")
+		if !bytes.Contains(out.Bytes(), []byte("dependencies synchronized.")) {
+			t.Errorf("expected output to contain '%v' got '%v' instead ", "dependencies synchronized.", out.String())
 		}
 
-		c.Main(context.Background(), dir, []string{"--api-key=Other_Key", "--server-address=my.server.com"})
-		if os.Getenv(sync.DepbotApiKey) != "Other_Key" {
-			t.Errorf("expected env variable to be 'Other_Key' got %v instead", os.Getenv(sync.DepbotApiKey))
+		if !bytes.Contains(out.Bytes(), []byte("6")) {
+			t.Errorf("expected output to contain '%v' got '%v' instead ", 6, out.String())
 		}
-		if os.Getenv(sync.DepbotServerAddr) != "my.server.com" {
-			t.Errorf("expected env variable to be 'my.server.com' got %v instead", os.Getenv(sync.DepbotServerAddr))
-		}
-
-		c.Main(context.Background(), dir, []string{"--api-key=Other_Key", fmt.Sprintf("--server-address=%v", server.URL)})
-		if os.Getenv(sync.DepbotApiKey) != "Other_Key" {
-			t.Errorf("expected env variable to be 'Other_Key' got %v instead", os.Getenv(sync.DepbotApiKey))
-		}
-		if os.Getenv(sync.DepbotServerAddr) != server.URL {
-			t.Errorf("expected env variable to be '%v' got %v", server.URL, os.Getenv(sync.DepbotServerAddr))
-		}
-
 	})
 
 }
