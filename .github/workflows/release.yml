@@ -1,0 +1,23 @@
+name: Release
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Fetch tags
+        run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+
+      - name: setup release environment
+        run: |-
+          echo 'GITHUB_TOKEN=${{secrets.GORELEASER_TOKEN }}' > .release-env
+      
+      - name: release publish
+        run: make release

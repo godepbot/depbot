@@ -9,13 +9,44 @@ Depbot is a CLI tool that identifies dependencies in a given source code reposit
 
 ## Installation
 
-To install depbot, run:
+To install the Depbot agent you can download to download a precompiled binary from [GitHub](github.com/godepbot/depbot/releases).
+
+### MacOS
+#### M1 Chip
+
+```
+$ curl -OL https://github.com/godepbot/depbot/releases/latest/download/depbot_darwin_arm64.tar.gz
+$ tar -xvzf depbot_darwin_arm64.tar.gz
+$ sudo mv depbot /usr/local/bin/depbot
+
+# or if you have ~/bin folder setup in the environment PATH variable
+$ mv depbot ~/bin/depbot
+```
+#### Intel / 64-bit
+```sh
+$ curl -OL https://github.com/godepbot/depbot/releases/latest/download/depbot_darwin_amd64.tar.gz
+$ tar -xvzf depbot_darwin_amd64.tar.gz
+$ sudo mv depbot /usr/local/bin/depbot
+
+# or if you have ~/bin folder setup in the environment PATH variable
+$ mv depbot ~/bin/depbot
+```
+
+### Linux
+```
+$ wget https://github.com/godepbot/depbot/releases/latest/download/depbot_linux_arm64.tar.gz
+$ tar -xvzf depbot_linux_arm64.tar.gz
+$ sudo mv depbot /usr/local/bin/depbot
+```
+
+
+
+### Installing from source
+Alternative, if you have the Go toolkit installed you can use the Go command to install from source.
 
 ```bash
 $ go install github.com/godepbot/depbot/cmd/depbot@latest
 ```
-
-Or download the appropriate binary from the releases page.
 
 ## Usage
 
@@ -37,21 +68,33 @@ golang.org/x/mod        v0.5.1                                  go.mod  false
 golang.org/x/xerrors    v0.0.0-20191011141410-1b5146add898      go.mod  false
 ```
 
-## sync
+## Sync
 
-The sync command synchronizes the dependencies to a given Depbot server. The command looks for the DEPBOT_API_KEY DEPBOT_SERVER_URL environment variables when synchronizing. If the DEPBOT_API_KEY is not set the command errors.
+The sync command POST's dependencies to the server running at the `DEPBOT_SERVER_ADDR` address. It requires the `DEPBOT_API_KEY` or `--api-key` flag to run, otherwise it errors.
+
+Here is an example specifying the key as an environment variable:
 
 ```sh
-$ depbot sync
+$ DEPBOT_API_KEY=AAAA depbot sync
 
 Success! 34 Dependencies synchronized.
 ```
 
-## Running in development
+It can also be specified by the `--api-key` flag.
 
-Assuming you have Go installed in your machine you can invoke the Depbot command by running:
+```sh
+# Key specified with the --api-key flag
+$ depbot sync --api-key=AAAA
 
-```bash
-$ go run ./cmd/depbot
+Success! 34 Dependencies synchronized.
+```
+
+And the command errors if the key is not specified.
+
+```sh
+# No API Key specified
+$ depbot sync
+
+Error: No API Key specified.
 ```
 
