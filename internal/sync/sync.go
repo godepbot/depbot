@@ -138,8 +138,8 @@ func urlOrDefaultFromArgs(args []string) string {
 		url = "http://app.depbot.com/api/sync"
 	}
 
-	if !strings.Contains(url, "http") {
-		url = fmt.Sprintf("http://%v", url)
+	if !strings.HasPrefix(url, "http") {
+		url = fmt.Sprintf("https://%v", url)
 	}
 
 	return url

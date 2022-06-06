@@ -35,8 +35,7 @@ func Test_HeadLinkedToBranch(t *testing.T) {
 	branchFile := filepath.Join(headsDir, "test-branch-1234")
 	os.WriteFile(branchFile, []byte(commitHash), os.ModePerm)
 
-	data, err := FindLatestHash(tmp)
-
+	data, _ := FindLatestHash(tmp)
 	if data != commitHash {
 		t.Fatalf("Got %v, but was expected %v", data, commitHash)
 	}
@@ -73,5 +72,31 @@ func Test_HeadLinkedToCommit(t *testing.T) {
 	if data != commitHash {
 		t.Fatalf("Result was: %v, but was expected -> %v", data, commitHash)
 	}
+}
 
+func Test_HeadLinkedToCommit_WithNewLineCharacter(t *testing.T) {
+	tmp := t.TempDir()
+
+	gitDir := filepath.Join(tmp, ".git")
+	err := os.Mkdir(gitDir, os.ModePerm)
+	if err != nil {
+		t.Fatalf("Error %v creating directory at %v", gitDir, err)
+		return
+	}
+
+	commitHash := "3cb32c9ec6ae2f88dbee1e8be923a691dd73427c\n"
+	headPath := filepath.Join(gitDir, "HEAD")
+	err = os.WriteFile(headPath, []byte(commitHash), os.ModePerm)
+	if err != nil {
+		t.Fatalf("Error %v writing file at %v", err, headPath)
+	}
+
+	data, _ := FindLatestHash(tmp)
+	if strings.Contains(data, "\n") {
+		t.Errorf("result contain the new line character")
+	}
+
+	if data != strings.ReplaceAll(commitHash, "\n", "") {
+		t.Fatalf("Result was: %v, but was expected -> %v", data, strings.ReplaceAll(commitHash, "\n", ""))
+	}
 }
