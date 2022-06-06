@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strings"
 	"text/tabwriter"
 	"time"
 
@@ -19,6 +20,9 @@ import (
 const (
 	DepbotApiKey     = "DEPBOT_API_KEY"
 	DepbotServerAddr = "DEPBOT_SERVER_ADDR"
+
+	syncFlagApiKey       = "--api-key"
+	syncFlagServerAddres = "--server-address"
 )
 
 var (
@@ -47,6 +51,8 @@ func (c *Command) SetClient(client *http.Client) {
 }
 
 func (c *Command) Main(ctx context.Context, pwd string, args []string) error {
+	handleArgs(args)
+
 	apiKey := os.Getenv(DepbotApiKey)
 	if apiKey == "" {
 		return ErrorMissingApiKey
@@ -76,23 +82,18 @@ func (c *Command) Main(ctx context.Context, pwd string, args []string) error {
 		return err
 	}
 
-	url := os.Getenv(DepbotServerAddr)
-	if url == "" {
-		url = "http://app.depbot.com/api/sync"
-	}
-
 	if c.client == nil {
 		c.client = new(http.Client)
 	}
 
-	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(jm))
+	req, err := http.NewRequest(http.MethodPost, serverURL(), bytes.NewBuffer(jm))
 	if err != nil {
 		return fmt.Errorf("error creating new request %w", err)
 	}
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", apiKey))
-	req.Header.Set("X-Revision-Hash", hash)
+	req.Header.Set("X-Revision-Hash", strings.ReplaceAll(hash, "\n", ""))
 	req.Header.Set("X-Timestamp", fmt.Sprintf("%v", time.Now().Unix()))
 
 	resp, err := c.client.Do(req)
@@ -127,5 +128,34 @@ func (c *Command) SetIO(stderr io.Writer, stdout io.Writer, stdin io.Reader) {
 func NewCommand(finders ...depbot.FinderFn) *Command {
 	return &Command{
 		finders: finders,
+	}
+}
+
+func serverURL() string {
+	url := os.Getenv(DepbotServerAddr)
+	if url == "" {
+		url = "http://app.depbot.com/api/sync"
+	}
+	if !strings.Contains(url, "http") {
+		url = fmt.Sprintf("http://%v", url)
+	}
+	return url
+}
+
+func handleArgs(args []string) {
+	for _, arg := range args {
+		flag := strings.Split(arg, "=")
+		if len(flag) < 1 {
+			continue
+		}
+
+		switch flag[0] {
+		case syncFlagApiKey:
+			os.Setenv(DepbotApiKey, flag[1])
+		case syncFlagServerAddres:
+			os.Setenv(DepbotServerAddr, flag[1])
+		default:
+			continue
+		}
 	}
 }

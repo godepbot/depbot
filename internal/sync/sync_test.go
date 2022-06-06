@@ -3,6 +3,7 @@ package sync_test
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -169,6 +170,44 @@ func TestSyncCommand(t *testing.T) {
 		if err == nil && (err != sync.ErrorMissingApiKey) {
 			t.Errorf("expected output to contain '%v'", sync.ErrorMissingApiKey)
 		}
+	})
+
+	t.Run("Sync command with args", func(t *testing.T) {
+		out := bytes.NewBuffer([]byte{})
+		c := sync.NewCommand(fakeFinder)
+		c.SetIO(out, out, nil)
+		c.SetClient(server.Client())
+
+		err := c.Main(context.Background(), dir, []string{})
+		if err == nil && (err != sync.ErrorMissingApiKey) {
+			t.Errorf("expected output to contain '%v'", sync.ErrorMissingApiKey)
+		}
+
+		err = c.Main(context.Background(), dir, []string{"--api-key=API_KEY"})
+		if err != nil {
+			t.Errorf("expected output to no contain errors")
+		}
+
+		if os.Getenv(sync.DepbotApiKey) != "API_KEY" {
+			t.Errorf("expected env variable to be 'API_KEY'")
+		}
+
+		c.Main(context.Background(), dir, []string{"--api-key=Other_Key", "--server-address=my.server.com"})
+		if os.Getenv(sync.DepbotApiKey) != "Other_Key" {
+			t.Errorf("expected env variable to be 'Other_Key' got %v instead", os.Getenv(sync.DepbotApiKey))
+		}
+		if os.Getenv(sync.DepbotServerAddr) != "my.server.com" {
+			t.Errorf("expected env variable to be 'my.server.com' got %v instead", os.Getenv(sync.DepbotServerAddr))
+		}
+
+		c.Main(context.Background(), dir, []string{"--api-key=Other_Key", fmt.Sprintf("--server-address=%v", server.URL)})
+		if os.Getenv(sync.DepbotApiKey) != "Other_Key" {
+			t.Errorf("expected env variable to be 'Other_Key' got %v instead", os.Getenv(sync.DepbotApiKey))
+		}
+		if os.Getenv(sync.DepbotServerAddr) != server.URL {
+			t.Errorf("expected env variable to be '%v' got %v", server.URL, os.Getenv(sync.DepbotServerAddr))
+		}
+
 	})
 
 }
