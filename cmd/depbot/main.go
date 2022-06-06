@@ -15,6 +15,7 @@ import (
 	"github.com/godepbot/depbot/internal/sync"
 )
 
+// finders that will be used for the sync and list commands.
 var finders = []depbot.FinderFn{
 	gomodules.FindDependencies,
 	jspackages.FindPackageDependencies,

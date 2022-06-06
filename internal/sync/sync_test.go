@@ -19,7 +19,7 @@ func mockEndPoint(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		w.WriteHeader(http.StatusUnprocessableEntity)
-		w.Write([]byte(depbot.ErrorNoSyncDep.Error()))
+		w.Write([]byte(sync.ErrorNoSyncDep.Error()))
 	}
 
 	if strings.Contains(string(body), "contains something wrong") {
@@ -74,8 +74,8 @@ func TestSyncCommand(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(mockEndPoint))
 	defer server.Close()
 
-	os.Setenv(depbot.EnvVariable_ServerADDR, server.URL)
-	os.Setenv(depbot.EnvVariable_ApiKey, "An API Key")
+	os.Setenv(sync.DepbotServerAddr, server.URL)
+	os.Setenv(sync.DepbotApiKey, "An API Key")
 
 	t.Run("No dependency found to sync", func(t *testing.T) {
 
@@ -153,21 +153,21 @@ func TestSyncCommand(t *testing.T) {
 		c.SetClient(server.Client())
 
 		err := c.Main(context.Background(), dir, []string{})
-		if err == nil && (err != depbot.ErrorNoSyncDep) {
-			t.Errorf("expected output to contain '%v'", depbot.ErrorNoSyncDep)
+		if err == nil && (err != sync.ErrorNoSyncDep) {
+			t.Errorf("expected output to contain '%v'", sync.ErrorNoSyncDep)
 		}
 	})
 
 	t.Run("Error Api key", func(t *testing.T) {
-		os.Setenv(depbot.EnvVariable_ApiKey, "")
+		os.Setenv(sync.DepbotApiKey, "")
 		out := bytes.NewBuffer([]byte{})
 		c := sync.NewCommand(fakeFinder)
 		c.SetIO(out, out, nil)
 		c.SetClient(server.Client())
 
 		err := c.Main(context.Background(), dir, []string{})
-		if err == nil && (err != depbot.ErrorMissingApiKey) {
-			t.Errorf("expected output to contain '%v'", depbot.ErrorMissingApiKey)
+		if err == nil && (err != sync.ErrorMissingApiKey) {
+			t.Errorf("expected output to contain '%v'", sync.ErrorMissingApiKey)
 		}
 	})
 

@@ -16,6 +16,18 @@ import (
 	"github.com/godepbot/depbot/internal/revision"
 )
 
+const (
+	DepbotApiKey     = "DEPBOT_API_KEY"
+	DepbotServerAddr = "DEPBOT_SERVER_ADDR"
+)
+
+var (
+	// ErrorMissingApiKey is an error that will be returned if the API key is missing
+	ErrorMissingApiKey error = fmt.Errorf("missing api key")
+	// ErrorNoSyncDep is an error that will be returned if the dependencies could not be synchronized
+	ErrorNoSyncDep error = fmt.Errorf("could not sync the dependencies")
+)
+
 type Command struct {
 	finders []depbot.FinderFn
 
@@ -35,9 +47,9 @@ func (c *Command) SetClient(client *http.Client) {
 }
 
 func (c *Command) Main(ctx context.Context, pwd string, args []string) error {
-	apiKey := os.Getenv(depbot.EnvVariable_ApiKey)
+	apiKey := os.Getenv(DepbotApiKey)
 	if apiKey == "" {
-		return depbot.ErrorMissingApiKey
+		return ErrorMissingApiKey
 	}
 
 	hash, err := revision.FindLatestHash(pwd)
@@ -64,7 +76,7 @@ func (c *Command) Main(ctx context.Context, pwd string, args []string) error {
 		return err
 	}
 
-	url := os.Getenv(depbot.EnvVariable_ServerADDR)
+	url := os.Getenv(DepbotServerAddr)
 	if url == "" {
 		url = "http://app.depbot.com/api/sync"
 	}
@@ -90,7 +102,7 @@ func (c *Command) Main(ctx context.Context, pwd string, args []string) error {
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := ioutil.ReadAll(resp.Body)
-		return fmt.Errorf("%v. error detail: %v", depbot.ErrorNoSyncDep.Error(), string(body))
+		return fmt.Errorf("%v. error detail: %v", ErrorNoSyncDep.Error(), string(body))
 	}
 
 	defer resp.Body.Close()
