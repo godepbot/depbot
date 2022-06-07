@@ -42,6 +42,10 @@ func (c *Command) Name() string {
 	return "sync"
 }
 
+func (c *Command) HelpText() string {
+	return "Synchronizes the dependencies with the server. The server can be configured with the \nDEPBOT_SERVER_ADDR environment variable. It requires a repo API key. See flags for more info."
+}
+
 func (c *Command) SetClient(client *http.Client) {
 	c.client = client
 }

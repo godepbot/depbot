@@ -40,6 +40,17 @@ func FindYarnDependencies(wd string) (depbot.Dependencies, error) {
 		version := ""
 		name := ""
 
+		depRegex, err := regexp.Compile(`(?:"?([^\s]+?)@)`)
+		if err != nil {
+			return dependencies, fmt.Errorf("error compiling regexp: %w", err)
+		}
+
+		versionRegex, err := regexp.Compile(`"(\d.+?)"`)
+		if err != nil {
+			// Continue it cannot parse the version
+			return dependencies, fmt.Errorf("error compiling regexp: %w", err)
+		}
+
 		for _, line := range rawFile {
 			if strings.Contains(line, "lockfile") {
 				dependencies = append(dependencies, depbot.Dependency{
@@ -51,11 +62,7 @@ func FindYarnDependencies(wd string) (depbot.Dependencies, error) {
 				continue
 			}
 
-			r, err := regexp.Compile(`(?:"?([^\s]+?)@)`)
-			if err != nil {
-				fmt.Println("error name ", err)
-			}
-			result := r.FindStringSubmatch(line)
+			result := depRegex.FindStringSubmatch(line)
 			// position 0 is the whole match for the regexp
 			// position 1 is the clean string
 			if len(result) >= 2 {
@@ -63,11 +70,7 @@ func FindYarnDependencies(wd string) (depbot.Dependencies, error) {
 			}
 
 			if strings.Contains(line, "version") {
-				r, err := regexp.Compile(`"(\d.+?)"`)
-				if err != nil {
-					fmt.Println("error version ", err)
-				}
-				version = r.FindString(line)
+				version = versionRegex.FindString(line)
 			}
 
 			if version != "" && name != "" {
