@@ -9,7 +9,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"text/tabwriter"
 	"time"
 
 	"github.com/godepbot/depbot"
@@ -56,6 +55,11 @@ func (c *Command) Main(ctx context.Context, pwd string, args []string) error {
 		return ErrorMissingApiKey
 	}
 
+	url := os.Getenv(DepbotServerAddr)
+	if url == "" {
+		url = "https://app.depbot.com/api/sync"
+	}
+
 	hash, err := revision.FindLatestHash(pwd)
 	if err != nil {
 		return err
@@ -78,11 +82,6 @@ func (c *Command) Main(ctx context.Context, pwd string, args []string) error {
 	jm, err := json.Marshal(deps)
 	if err != nil {
 		return err
-	}
-
-	url := os.Getenv(DepbotServerAddr)
-	if url == "" {
-		url = "http://app.depbot.com/api/sync"
 	}
 
 	if c.client == nil {
@@ -111,12 +110,7 @@ func (c *Command) Main(ctx context.Context, pwd string, args []string) error {
 
 	defer resp.Body.Close()
 
-	w := new(tabwriter.Writer)
-	w.Init(c.stdout, 0, 0, 0, 0, 0)
-
-	fmt.Fprintf(w, "%v dependencies synchronized.", len(deps))
-	fmt.Fprintln(w)
-	w.Flush()
+	fmt.Fprintf(c.stdout, "%v dependencies synchronized.", len(deps))
 
 	return nil
 }
