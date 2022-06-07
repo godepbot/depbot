@@ -22,7 +22,7 @@ func TestHelpCommand(t *testing.T) {
 		out := bytes.NewBuffer([]byte{})
 		hc.IO.Out = out
 
-		err := hc.Main(context.Background(), "", []string{""})
+		err := hc.Main(context.Background(), "", []string{})
 		if err != nil {
 			t.Fatalf("error running help: %v", err)
 		}
@@ -65,8 +65,18 @@ func TestHelpCommand(t *testing.T) {
 			t.Fatalf("error running help: %v", err)
 		}
 
-		if !bytes.Contains(out.Bytes(), []byte("Usage: depbot test [options]")) {
-			t.Fatalf("expected output to contain 'Usage: depbot test [options]'")
+		contents := []string{
+			"Usage: depbot test [options]",
+			"--output",
+			"--toggle",
+		}
+
+		for _, v := range contents {
+			if bytes.Contains(out.Bytes(), []byte(v)) {
+				continue
+			}
+
+			t.Fatalf("expected output to contain '%s'", v)
 		}
 	})
 
