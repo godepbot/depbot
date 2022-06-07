@@ -162,7 +162,3 @@ func NewCommand(finders ...depbot.FinderFn) *Command {
 func (s *Command) WithRevisionFinder(finder func(string) (string, error)) {
 	s.revisionFinder = finder
 }
-
-func (s *Command) WithAPIKey(key string) {
-	s.apiKey = key
-}
