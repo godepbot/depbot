@@ -106,7 +106,7 @@ func TestCommand(t *testing.T) {
 
 	})
 
-	t.Run("finder with output flag", func(t *testing.T) {
+	t.Run("finder with output flag json", func(t *testing.T) {
 		c := list.NewCommand(
 			fakeFinder,
 		)
@@ -131,7 +131,7 @@ func TestCommand(t *testing.T) {
 
 	})
 
-	t.Run("finder with output csv", func(t *testing.T) {
+	t.Run("finder with output flag csv", func(t *testing.T) {
 		c := list.NewCommand(
 			fakeFinder,
 		)
