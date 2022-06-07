@@ -3,6 +3,9 @@ package list_test
 import (
 	"bytes"
 	"context"
+	"encoding/json"
+	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/godepbot/depbot"
@@ -10,15 +13,14 @@ import (
 )
 
 func TestCommand(t *testing.T) {
+	deps := []depbot.Dependency{
+		{Name: "github.com/wawandco/ox", Version: "v1.0.0", Kind: depbot.DependencyKindLibrary, File: "go.mod", Direct: true},
+		{Name: "github.com/wawandco/maildoor", Version: "v1.0.0", Kind: depbot.DependencyKindLibrary, File: "go.mod", Direct: true},
+		{Name: "github.com/wawandco/fako", Version: "v1.0.0", Kind: depbot.DependencyKindLibrary, File: "go.mod", Direct: true},
+	}
 
 	fakeFinder := func(wd string) (depbot.Dependencies, error) {
-		dd := []depbot.Dependency{
-			{Name: "github.com/wawandco/ox", Version: "v1.0.0", Kind: depbot.DependencyKindLibrary, File: "go.mod", Direct: true},
-			{Name: "github.com/wawandco/maildoor", Version: "v1.0.0", Kind: depbot.DependencyKindLibrary, File: "go.mod", Direct: true},
-			{Name: "github.com/wawandco/fako", Version: "v1.0.0", Kind: depbot.DependencyKindLibrary, File: "go.mod", Direct: true},
-		}
-
-		return dd, nil
+		return deps, nil
 	}
 
 	t.Run("No dependency found", func(t *testing.T) {
@@ -104,4 +106,50 @@ func TestCommand(t *testing.T) {
 
 	})
 
+	t.Run("finder with output flag", func(t *testing.T) {
+		c := list.NewCommand(
+			fakeFinder,
+		)
+
+		out := bytes.NewBuffer([]byte{})
+		c.SetIO(out, out, nil)
+		c.ParseFlags([]string{"--output=json"})
+
+		err := c.Main(context.Background(), t.TempDir(), []string{})
+		if err != nil {
+			t.Fatalf("error running list command: %v", err)
+		}
+
+		jm, err := json.Marshal(deps)
+		if err != nil {
+			t.Fatalf("error marshal deps: %v", err)
+		}
+
+		if !strings.Contains(out.String(), string(jm)) {
+			t.Fatalf("expected output to contain %v", string(jm))
+		}
+
+	})
+
+	t.Run("finder with output csv", func(t *testing.T) {
+		c := list.NewCommand(
+			fakeFinder,
+		)
+
+		out := bytes.NewBuffer([]byte{})
+		c.SetIO(out, out, nil)
+		c.ParseFlags([]string{"--output", "csv"})
+
+		err := c.Main(context.Background(), t.TempDir(), []string{})
+		if err != nil {
+			t.Fatalf("error running list command: %v", err)
+		}
+
+		for _, v := range deps {
+			line := fmt.Sprintf("\"%v\",\"%v\",\"%v\",\"%v\"\n", v.Name, v.Version, v.File, v.Direct)
+			if !strings.Contains(out.String(), line) {
+				t.Fatalf("expected output to contain %v", line)
+			}
+		}
+	})
 }
