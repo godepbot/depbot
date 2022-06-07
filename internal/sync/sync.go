@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strings"
 	"text/tabwriter"
 	"time"
 
@@ -51,7 +52,9 @@ func (c *Command) SetClient(client *http.Client) {
 }
 
 func (c *Command) Main(ctx context.Context, pwd string, args []string) error {
-	apiKey := os.Getenv(DepbotApiKey)
+	url := urlOrDefaultFromArgs(args)
+
+	apiKey := apiKeyOrDefaultFromArgs(args)
 	if apiKey == "" {
 		return ErrorMissingApiKey
 	}
@@ -78,11 +81,6 @@ func (c *Command) Main(ctx context.Context, pwd string, args []string) error {
 	jm, err := json.Marshal(deps)
 	if err != nil {
 		return err
-	}
-
-	url := os.Getenv(DepbotServerAddr)
-	if url == "" {
-		url = "http://app.depbot.com/api/sync"
 	}
 
 	if c.client == nil {
@@ -132,4 +130,47 @@ func NewCommand(finders ...depbot.FinderFn) *Command {
 	return &Command{
 		finders: finders,
 	}
+}
+
+func urlOrDefaultFromArgs(args []string) string {
+	url := valueFromArgs(args, "--server-address")
+
+	if url == "" {
+		url = os.Getenv(DepbotServerAddr)
+	}
+	if url == "" {
+		url = "http://app.depbot.com/api/sync"
+	}
+
+	if !strings.HasPrefix(url, "http://") && !strings.HasPrefix(url, "https://") {
+		url = fmt.Sprintf("https://%v", url)
+	}
+
+	return url
+}
+
+func apiKeyOrDefaultFromArgs(args []string) string {
+	apiKey := valueFromArgs(args, "--api-key")
+	if apiKey == "" {
+		apiKey = os.Getenv(DepbotApiKey)
+	}
+	return apiKey
+}
+
+func valueFromArgs(args []string, key string) string {
+	var value string
+	for _, arg := range args {
+		flag := strings.Split(arg, "=")
+		if len(flag) < 1 {
+			continue
+		}
+
+		if flag[0] != key {
+			continue
+		}
+
+		value = flag[1]
+		break
+	}
+	return value
 }

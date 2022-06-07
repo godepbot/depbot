@@ -3,6 +3,7 @@ package sync_test
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -168,6 +169,34 @@ func TestSyncCommand(t *testing.T) {
 		err := c.Main(context.Background(), dir, []string{})
 		if err == nil && (err != sync.ErrorMissingApiKey) {
 			t.Errorf("expected output to contain '%v'", sync.ErrorMissingApiKey)
+		}
+	})
+
+	t.Run("Sync command with args, Multiple finders, same result", func(t *testing.T) {
+		out := bytes.NewBuffer([]byte{})
+
+		c := sync.NewCommand(
+			fakeFinder,
+			fakeFinder,
+		)
+
+		c.SetIO(out, out, nil)
+		c.SetClient(server.Client())
+
+		os.Setenv(sync.DepbotServerAddr, "")
+		os.Setenv(sync.DepbotApiKey, "")
+
+		err := c.Main(context.Background(), dir, []string{"--api-key=Other_Key", fmt.Sprintf("--server-address=%v", server.URL)})
+		if err != nil {
+			t.Errorf("expected to not contain error, got %v", err.Error())
+		}
+
+		if !bytes.Contains(out.Bytes(), []byte("dependencies synchronized.")) {
+			t.Errorf("expected output to contain '%v' got '%v' instead ", "dependencies synchronized.", out.String())
+		}
+
+		if !bytes.Contains(out.Bytes(), []byte("6")) {
+			t.Errorf("expected output to contain '%v' got '%v' instead ", 6, out.String())
 		}
 	})
 
