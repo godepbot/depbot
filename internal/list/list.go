@@ -21,6 +21,10 @@ func (c *Command) Name() string {
 	return "list"
 }
 
+func (c *Command) HelpText() string {
+	return "Analyzes and lists dependencies by walking the current directory for dependency files."
+}
+
 func (c *Command) Main(ctx context.Context, pwd string, args []string) error {
 	deps := []depbot.Dependency{}
 	for _, df := range c.finders {

@@ -23,18 +23,12 @@ var finders = []depbot.FinderFn{
 	jspackages.FindYarnDependencies,
 }
 
-// app for the CLI, commands used will be added here.
-var (
-	app = &cli.App{
-		Commands: []cli.Command{
-			// find command
-			list.NewCommand(finders...),
-			sync.NewCommand(finders...),
-		},
-	}
-)
-
 func main() {
+	app := cli.NewApp(
+		list.NewCommand(finders...),
+		sync.NewCommand(finders...),
+	)
+
 	ctx := context.Background()
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt)
 	defer cancel()
