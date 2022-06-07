@@ -23,26 +23,10 @@ var finders = []depbot.FinderFn{
 	jspackages.FindYarnDependencies,
 }
 
-// app for the CLI, commands used will be added here.
-var (
-	app = &cli.App{
-		Commands: []cli.Command{
-			// find command
-			list.NewCommand(finders...),
-			sync.NewCommand(finders...),
-		},
-	}
-)
-
 func main() {
 	app := cli.NewApp(
-		// list command with
-		list.NewCommand(
-			gomodules.FindDependencies,
-			jspackages.FindPackageDependencies,
-			jspackages.FindPackageLockDependencies,
-			jspackages.FindYarnDependencies,
-		),
+		list.NewCommand(finders...),
+		sync.NewCommand(finders...),
 	)
 
 	ctx := context.Background()
