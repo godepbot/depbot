@@ -63,7 +63,7 @@ func FindYarnDependencies(wd string) (depbot.Dependencies, error) {
 			}
 
 			if strings.Contains(line, "version") {
-				r, err := regexp.Compile(`"(.+?)"`)
+				r, err := regexp.Compile(`"(\d.+?)"`)
 				if err != nil {
 					fmt.Println("error version ", err)
 				}

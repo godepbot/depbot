@@ -40,6 +40,26 @@ makeerror@1.0.x:
   integrity sha1-4BpckQnyr3lmDk6LlYd5AYT1qWw=
   dependencies:
     tmpl "1.0.x"
+	
+standard-version@^9.5.0:
+  version "9.5.0"
+  resolved "https://registry.yarnpkg.com/standard-version/-/standard-version-9.5.0.tgz#851d6dcddf5320d5079601832aeb185dbf497949"
+  integrity sha512-3zWJ/mmZQsOaO+fOlsa0+QK90pwhNd042qEcw6hKFNoLFs7peGyvPffpEBbK/DSGPbyOvli0mUIFv5A4qTjh2Q==
+  dependencies:
+    chalk "^2.4.2"
+    conventional-changelog "3.1.25"
+    conventional-changelog-config-spec "2.1.0"
+    conventional-changelog-conventionalcommits "4.6.3"
+    conventional-recommended-bump "6.1.0"
+    detect-indent "^6.0.0"
+    detect-newline "^3.1.0"
+    dotgitignore "^2.1.0"
+    figures "^3.1.0"
+    find-up "^5.0.0"
+    git-semver-tags "^4.0.0"
+    semver "^7.1.1"
+    stringify-package "^1.0.1"
+    yargs "^16.0.0"
 `
 
 var secondYarnFile = `
@@ -85,8 +105,8 @@ func Test_Yarn_SingleDependency(t *testing.T) {
 		return
 	}
 
-	if len(dependencies) != 5 {
-		t.Fatalf("got %v, but was expected %v", len(dependencies), 5)
+	if len(dependencies) != 6 {
+		t.Fatalf("got %v, but was expected %v", len(dependencies), 6)
 		return
 	}
 
@@ -108,6 +128,16 @@ func Test_Yarn_SingleDependency(t *testing.T) {
 		{
 			name:    "cli",
 			version: "^7.16.0",
+			exist:   false,
+		},
+		{
+			name:    "standard-version",
+			version: "9.5.0",
+			exist:   true,
+		},
+		{
+			name:    "standard-version",
+			version: "https://registry.yarnpkg.com/standard-version/-/standard-version-9.5.0.tgz#851d6dcddf5320d5079601832aeb185dbf497949",
 			exist:   false,
 		},
 	}
