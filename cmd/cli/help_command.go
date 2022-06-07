@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"bytes"
 	"context"
 	"flag"
 	"fmt"
@@ -11,8 +10,6 @@ import (
 // its flags and any other information available to make it easy for the user.
 type HelpCommand struct {
 	IO
-	flagSet *flag.FlagSet
-	output  string
 
 	Commands Commands
 }
@@ -23,20 +20,6 @@ func (c HelpCommand) Name() string {
 
 func (c HelpCommand) HelpText() string {
 	return "Provides help for a given command, p.e. depbot help list."
-}
-
-func (c HelpCommand) ParseFlags(args []string) (*flag.FlagSet, error) {
-	c.flagSet = flag.NewFlagSet(c.Name(), flag.ContinueOnError)
-	c.flagSet.StringVar(&c.output, "output", "plain", "Output format. Can be plain, json or csv.")
-
-	// This is to keep it silent
-	c.flagSet.SetOutput(bytes.NewBuffer([]byte{}))
-	c.flagSet.Usage = func() {}
-
-	// Ignore the error we don't care if any error happens while parsing.
-	_ = c.flagSet.Parse(args)
-
-	return c.flagSet, nil
 }
 
 func (c HelpCommand) Main(ctx context.Context, pwd string, args []string) error {

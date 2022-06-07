@@ -190,4 +190,30 @@ func TestSyncCommand(t *testing.T) {
 		}
 	})
 
+	t.Run("ENV and FLAG set", func(t *testing.T) {
+		fkServer.responseCode = http.StatusOK
+		os.Setenv("DEPBOT_API_KEY", "ENV")
+
+		out := bytes.NewBuffer([]byte{})
+		c := sync.NewCommand(fakeFinder)
+
+		c.SetIO(out, out, nil)
+		c.SetClient(server.Client())
+		c.WithRevisionFinder(fakeRevisionFinder)
+		c.ParseFlags([]string{"--server-address", server.URL, "--api-key", "FLAG"})
+
+		err := c.Main(context.Background(), "", []string{})
+		if err != nil {
+			t.Fatalf("error running sync command: %v", err)
+		}
+
+		if !bytes.Contains(out.Bytes(), []byte("3 dependencies synchronized.")) {
+			t.Errorf("expected output to contain '%v'", "dependencies synchronized.")
+		}
+
+		if fkServer.receivedRequest.Header.Get("Authorization") != "Bearer FLAG" {
+			t.Errorf("expected output to contain '%v'", "FLAG")
+		}
+	})
+
 }
