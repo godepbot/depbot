@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"bytes"
 	"context"
 	"flag"
 	"fmt"
@@ -11,8 +10,6 @@ import (
 // its flags and any other information available to make it easy for the user.
 type HelpCommand struct {
 	IO
-	flagSet *flag.FlagSet
-	output  string
 
 	Commands Commands
 }
@@ -25,24 +22,13 @@ func (c HelpCommand) HelpText() string {
 	return "Provides help for a given command, p.e. depbot help list."
 }
 
-func (c HelpCommand) ParseFlags(args []string) (*flag.FlagSet, error) {
-	c.flagSet = flag.NewFlagSet(c.Name(), flag.ContinueOnError)
-	c.flagSet.StringVar(&c.output, "output", "plain", "Output format. Can be plain, json or csv.")
-
-	// This is to keep it silent
-	c.flagSet.SetOutput(bytes.NewBuffer([]byte{}))
-	c.flagSet.Usage = func() {}
-
-	// Ignore the error we don't care if any error happens while parsing.
-	_ = c.flagSet.Parse(args)
-
-	return c.flagSet, nil
-}
-
 func (c HelpCommand) Main(ctx context.Context, pwd string, args []string) error {
-	command := c.Commands.Find(args[0])
-	if command == nil {
-		fmt.Fprintf(c.Stdout(), "Error: did not find `%v` command\n", args[0])
+	var command Command
+	if len(args) > 0 {
+		command = c.Commands.Find(args[0])
+		if command == nil {
+			fmt.Fprintf(c.Stdout(), "Error: did not find `%v` command\n", args[0])
+		}
 	}
 
 	if len(args) == 0 || command == nil {
@@ -61,11 +47,14 @@ func (c HelpCommand) general() error {
 		return nil
 	}
 
-	fmt.Fprintln(c.Stdout(), "Commands")
-	fmt.Fprintln(c.Stdout(), "------------------")
+	fmt.Fprintln(c.Stdout(), "Available Commands:")
 	for _, v := range c.Commands {
 		if ht, ok := v.(HelpTexter); ok {
-			fmt.Fprintf(c.Stdout(), "%v\t%v\n", v.Name(), ht.HelpText())
+			text := ht.HelpText()
+			if len(text) > 70 {
+				text = text[0:70] + "..."
+			}
+			fmt.Fprintf(c.Stdout(), "%v\t%v\n", v.Name(), text)
 			continue
 		}
 
@@ -82,7 +71,15 @@ func (c HelpCommand) specific(cm Command) error {
 	fmt.Fprintf(c.Stdout(), "Usage: depbot %v [options]\n\n", cm.Name())
 
 	if ht, ok := cm.(HelpTexter); ok {
-		fmt.Fprintf(c.Stdout(), ht.HelpText()+"\n")
+		fmt.Fprintf(c.Stdout(), ht.HelpText()+"\n\n")
+	}
+
+	if fl, ok := cm.(FlagParser); ok {
+		fl, _ := fl.ParseFlags([]string{})
+		fmt.Fprintf(c.Stdout(), "Flags:\n")
+		fl.VisitAll(func(ff *flag.Flag) {
+			fmt.Fprintf(c.Stdout(), "--%v\t%v\n", ff.Name, ff.Usage)
+		})
 	}
 
 	return nil
