@@ -24,17 +24,17 @@ func FindLatestHash(pwd string) (string, error) {
 
 	/// HEAD points to a commit in particular.
 	if len(headData) > 0 {
-		return headData, nil
+		return strings.ReplaceAll(headData, "\n", ""), nil
 	}
 
-	return "", fmt.Errorf("Oops! No hash available.")
+	return "", fmt.Errorf("oops! No hash available")
 }
 
 func readHead(pwd string) (string, error) {
 	headPath := filepath.Join(pwd, gitDirectory, "HEAD")
 	bytes, err := os.ReadFile(headPath)
 	if err != nil {
-		return "", fmt.Errorf("Error is %w", err)
+		return "", fmt.Errorf("error is %w", err)
 	}
 
 	return strings.TrimSpace(string(bytes)), nil
@@ -44,15 +44,17 @@ func hashFromBranch(pwd string, headContent string) (string, error) {
 	components := strings.Split(headContent, ": ")
 
 	if len(components) < 2 {
-		return "", fmt.Errorf("Oops! No hash available.")
+		return "", fmt.Errorf("oops! No hash available")
 	}
 
 	branchPath := components[1]
 	fullBranchPath := filepath.Join(pwd, gitDirectory, branchPath)
 	bytes, err := os.ReadFile(fullBranchPath)
 	if err != nil {
-		return "", fmt.Errorf("Oops! Something happened! %v", err)
+		return "", fmt.Errorf("oops! Something happened! %v", err)
 	}
 
-	return string(bytes), nil
+	hash := strings.ReplaceAll(string(bytes), "\n", "")
+
+	return hash, nil
 }
