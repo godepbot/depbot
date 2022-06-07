@@ -24,6 +24,17 @@ func FindYarnDependencies(wd string) (depbot.Dependencies, error) {
 
 	dependencies := depbot.Dependencies{}
 
+	depRegex, err := regexp.Compile(`(?:"?([^\s]+?)@)`)
+	if err != nil {
+		return dependencies, fmt.Errorf("error compiling regexp: %w", err)
+	}
+
+	versionRegex, err := regexp.Compile(`"(\d.+?)"`)
+	if err != nil {
+		// Continue it cannot parse the version
+		return dependencies, fmt.Errorf("error compiling regexp: %w", err)
+	}
+
 	for _, p := range pths {
 		openFile, err := ioutil.ReadFile(p)
 		if err != nil {
@@ -39,17 +50,6 @@ func FindYarnDependencies(wd string) (depbot.Dependencies, error) {
 		rawFile := strings.Split(string(openFile), "\n")
 		version := ""
 		name := ""
-
-		depRegex, err := regexp.Compile(`(?:"?([^\s]+?)@)`)
-		if err != nil {
-			return dependencies, fmt.Errorf("error compiling regexp: %w", err)
-		}
-
-		versionRegex, err := regexp.Compile(`"(\d.+?)"`)
-		if err != nil {
-			// Continue it cannot parse the version
-			return dependencies, fmt.Errorf("error compiling regexp: %w", err)
-		}
 
 		for _, line := range rawFile {
 			if strings.Contains(line, "lockfile") {
