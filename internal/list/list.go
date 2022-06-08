@@ -42,8 +42,6 @@ func (c *Command) Main(ctx context.Context, pwd string, args []string) error {
 		deps = append(deps, dx...)
 	}
 
-	fmt.Fprintln(c.stdout, "Total dependencies found:", len(deps))
-
 	w := new(tabwriter.Writer)
 	w.Init(c.stdout, 0, 8, 0, '\t', 0)
 
@@ -60,6 +58,7 @@ func (c *Command) Main(ctx context.Context, pwd string, args []string) error {
 			fmt.Fprintf(w, "\"%v\",\"%v\",\"%v\",\"%v\"\n", v.Name, v.Version, v.File, v.Direct)
 		}
 	default:
+		fmt.Fprintln(c.stdout, "Total dependencies found:", len(deps))
 		fmt.Fprintln(w, "\nName\tVersion\tFile\tDirect")
 		fmt.Fprintln(w, "----\t-------\t----\t-------")
 		for _, v := range deps {

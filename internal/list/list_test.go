@@ -125,6 +125,10 @@ func TestCommand(t *testing.T) {
 			t.Fatalf("error marshal deps: %v", err)
 		}
 
+		if bytes.Contains(out.Bytes(), []byte("Total dependencies found")) {
+			t.Errorf("expected output to not contain 'Total dependencies found:'")
+		}
+
 		if !strings.Contains(out.String(), string(jm)) {
 			t.Fatalf("expected output to contain %v", string(jm))
 		}
@@ -143,6 +147,10 @@ func TestCommand(t *testing.T) {
 		err := c.Main(context.Background(), t.TempDir(), []string{})
 		if err != nil {
 			t.Fatalf("error running list command: %v", err)
+		}
+
+		if bytes.Contains(out.Bytes(), []byte("Total dependencies found")) {
+			t.Errorf("expected output to not contain 'Total dependencies found:'")
 		}
 
 		for _, v := range deps {
