@@ -9,7 +9,7 @@ jobs:
       - name: Downloading Depbot
         run: wget https://github.com/godepbot/depbot/releases/latest/download/depbot_linux_amd64.tar.gz
       - name: Extracting
-        run: tar -xvzf depbot_linux_arm64.tar.gz
+        run: tar -xvzf depbot_linux_amd64.tar.gz
       - name: Setting up
         run: sudo mv depbot /usr/local/bin/depbot
       - name: Running Depbot
