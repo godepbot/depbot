@@ -12,5 +12,8 @@ jobs:
       - name: Position
         run: pwd
 
+      - name: List of files
+        run: ls
+
       - name: Running Depbot
         run: go run ./cmd/depbot list
