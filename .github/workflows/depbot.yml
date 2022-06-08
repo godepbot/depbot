@@ -10,4 +10,4 @@ jobs:
         run: go install github.com/godepbot/depbot/cmd/depbot@latest
 
       - name: Running Depbot
-        run: go run ./cmd/depbot sync
+        run: go run ./cmd/depbot list
