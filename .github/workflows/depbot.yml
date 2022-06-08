@@ -6,14 +6,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Installing Depbot
-        run: go install github.com/godepbot/depbot/cmd/depbot@latest
-
-      - name: Position
-        run: pwd
-
-      - name: List of files
-        run: ls
-
+      - name: Downloading Depbot
+        run: wget https://github.com/godepbot/depbot/releases/latest/download/depbot_linux_arm64.tar.gz
+      - name: Extracting
+        run: tar -xvzf depbot_linux_arm64.tar.gz
+      - name: Setting up
+        run: sudo mv depbot /usr/local/bin/depbot
       - name: Running Depbot
-        run: go run ./cmd/depbot list
+        run: /usr/local/bin/depbot list
