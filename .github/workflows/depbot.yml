@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Downloading Depbot
-        run: wget https://github.com/godepbot/depbot/releases/latest/download/depbot_linux_arm64.tar.gz
+        run: wget https://github.com/godepbot/depbot/releases/latest/download/depbot_linux_amd64.tar.gz
       - name: Extracting
         run: tar -xvzf depbot_linux_arm64.tar.gz
       - name: Setting up
