@@ -8,6 +8,8 @@ jobs:
     steps:
       - name: Installing Depbot
         run: go install github.com/godepbot/depbot/cmd/depbot@latest
+
+      - name: Position
         run: pwd
 
       - name: Running Depbot
