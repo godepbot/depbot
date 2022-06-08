@@ -1,0 +1,12 @@
+name: Depbot
+
+on: [push]
+
+jobs:
+  build:
+    steps:
+      - name: Installing Depbot
+        run: go install github.com/godepbot/depbot/cmd/depbot@latest
+
+      - name: Running Depbot
+        run: depbot list
