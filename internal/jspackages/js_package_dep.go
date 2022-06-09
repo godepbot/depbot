@@ -64,34 +64,38 @@ func FindPackageDependencies(wd string) (depbot.Dependencies, error) {
 func packageDependencies(p PackageJson) depbot.Dependencies {
 	dependencies := depbot.Dependencies{
 		{
-			File: jsPackageFile,
-			Name: jsDependencyNameNPM,
-			Kind: depbot.DependencyKindTool,
+			File:     jsPackageFile,
+			Kind:     depbot.DependencyKindTool,
+			Language: depbot.DependencyLanguageJs,
+			Name:     jsDependencyNameNPM,
 		},
 		{
-			File:    jsPackageFile,
-			Version: p.Version,
-			Name:    jsDependencyNameJs,
-			Kind:    depbot.DependencyKindLanguage,
+			File:     jsPackageFile,
+			Kind:     depbot.DependencyKindLanguage,
+			Language: depbot.DependencyLanguageJs,
+			Name:     jsDependencyNameJs,
+			Version:  p.Version,
 		},
 	}
 
 	for d := range p.Dependencies {
 		dependencies = append(dependencies, depbot.Dependency{
-			File:    jsPackageFile,
-			Name:    d,
-			Version: p.Dependencies[d],
-			Kind:    depbot.DependencyKindLibrary,
-			Direct:  true,
+			Direct:   true,
+			Kind:     depbot.DependencyKindLibrary,
+			Language: depbot.DependencyLanguageJs,
+			File:     jsPackageFile,
+			Name:     d,
+			Version:  p.Dependencies[d],
 		})
 	}
 
 	for d := range p.DevDependencies {
 		dependencies = append(dependencies, depbot.Dependency{
-			File:    jsPackageFile,
-			Name:    d,
-			Version: p.DevDependencies[d],
-			Kind:    depbot.DependencyKindLibrary,
+			File:     jsPackageFile,
+			Kind:     depbot.DependencyKindLibrary,
+			Language: depbot.DependencyLanguageJs,
+			Name:     d,
+			Version:  p.DevDependencies[d],
 		})
 	}
 

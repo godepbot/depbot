@@ -5,6 +5,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/godepbot/depbot"
 	"github.com/godepbot/depbot/internal/jspackages"
 )
 
@@ -112,6 +113,12 @@ func Test_PackageLock_SingleDependency(t *testing.T) {
 	if len(dependencies) != 5 {
 		t.Fatalf("got %v, but was expected %v", len(dependencies), 5)
 		return
+	}
+
+	for _, dependencie := range dependencies {
+		if dependencie.Language != depbot.DependencyLanguageJs {
+			t.Fatalf("got %v, but was expected %v", dependencie.Language, depbot.DependencyLanguageJs)
+		}
 	}
 
 	tcases := []struct {

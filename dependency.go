@@ -20,6 +20,9 @@ type Dependency struct {
 
 	// Whether the dependency is direct or transitive.
 	Direct bool
+
+	// Language of the dependency
+	Language DependencyLanguage
 }
 
 type Dependencies []Dependency

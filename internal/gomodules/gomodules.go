@@ -44,20 +44,22 @@ func FindDependencies(wd string) (depbot.Dependencies, error) {
 		}
 
 		dependencies = append(dependencies, depbot.Dependency{
-			File:    goDependencyFile,
-			Version: f.Go.Version,
-			Name:    dependencyNameGo,
-			Kind:    depbot.DependencyKindLanguage,
-			Direct:  true,
+			File:     goDependencyFile,
+			Kind:     depbot.DependencyKindLanguage,
+			Language: depbot.DependencyLanguageGo,
+			Version:  f.Go.Version,
+			Name:     dependencyNameGo,
+			Direct:   true,
 		})
 
 		for _, r := range f.Require {
 			dependencies = append(dependencies, depbot.Dependency{
-				File:    goDependencyFile,
-				Name:    r.Mod.Path,
-				Version: r.Mod.Version,
-				Kind:    depbot.DependencyKindLibrary,
-				Direct:  !r.Indirect,
+				Direct:   !r.Indirect,
+				File:     goDependencyFile,
+				Version:  r.Mod.Version,
+				Language: depbot.DependencyLanguageGo,
+				Kind:     depbot.DependencyKindLibrary,
+				Name:     r.Mod.Path,
 			})
 		}
 	}
