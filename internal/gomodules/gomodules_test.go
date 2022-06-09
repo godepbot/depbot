@@ -5,6 +5,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/godepbot/depbot"
 	"github.com/godepbot/depbot/internal/gomodules"
 )
 
@@ -44,6 +45,12 @@ func Test_SingleDependency(t *testing.T) {
 	if len(dependencies) != 4 {
 		t.Fatalf("got %v, but was expected %v", len(dependencies), 4)
 		return
+	}
+
+	for _, dependencie := range dependencies {
+		if dependencie.Language != depbot.DependencyLanguageGo {
+			t.Fatalf("got %v, but was expected %v", dependencie.Language, depbot.DependencyLanguageGo)
+		}
 	}
 
 	if dependencies[0].Name != "Go" {

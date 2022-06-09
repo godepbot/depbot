@@ -49,15 +49,17 @@ func FindPackageLockDependencies(wd string) (depbot.Dependencies, error) {
 func packageLockDependencies(p PackageLockJson) depbot.Dependencies {
 	dependencies := depbot.Dependencies{
 		{
-			File: jsPackageFile,
-			Name: jsDependencyNameNPM,
-			Kind: depbot.DependencyKindTool,
+			File:     jsPackageFile,
+			Kind:     depbot.DependencyKindTool,
+			Language: depbot.DependencyLanguageJs,
+			Name:     jsDependencyNameNPM,
 		},
 		{
-			File:    jsPackageLockFile,
-			Version: p.Version,
-			Name:    jsDependencyNameJs,
-			Kind:    depbot.DependencyKindLanguage,
+			File:     jsPackageLockFile,
+			Kind:     depbot.DependencyKindLanguage,
+			Language: depbot.DependencyLanguageJs,
+			Version:  p.Version,
+			Name:     jsDependencyNameJs,
 		},
 	}
 
@@ -66,11 +68,12 @@ func packageLockDependencies(p PackageLockJson) depbot.Dependencies {
 		transitive := p.Dependencies[d].(map[string]interface{})["dev"]
 
 		dependencies = append(dependencies, depbot.Dependency{
-			File:    jsPackageLockFile,
-			Name:    d,
-			Version: version.(string),
-			Kind:    depbot.DependencyKindLibrary,
-			Direct:  transitive != true,
+			Direct:   transitive != true,
+			File:     jsPackageLockFile,
+			Kind:     depbot.DependencyKindLibrary,
+			Language: depbot.DependencyLanguageJs,
+			Name:     d,
+			Version:  version.(string),
 		})
 	}
 	return dependencies
