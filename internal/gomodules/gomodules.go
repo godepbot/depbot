@@ -23,7 +23,7 @@ func FindDependencies(wd string) (depbot.Dependencies, error) {
 	pths := []string{}
 
 	filepath.WalkDir(wd, func(path string, d fs.DirEntry, err error) error {
-		if strings.Contains(path, goDependencyFile) {
+		if strings.HasSuffix(path, "/"+goDependencyFile) {
 			pths = append(pths, path)
 		}
 

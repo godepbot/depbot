@@ -27,11 +27,11 @@ func FindPackageDependencies(wd string) (depbot.Dependencies, error) {
 	var hasPackageLockDeps bool
 
 	filepath.WalkDir(wd, func(path string, d fs.DirEntry, err error) error {
-		if strings.Contains(path, jsPackageLockFile) {
+		if strings.HasSuffix(path, "/"+jsPackageLockFile) {
 			hasPackageLockDeps = true
 			return nil
 		}
-		if strings.Contains(path, jsPackageFile) {
+		if strings.HasSuffix(path, "/"+jsPackageFile) {
 			pths = append(pths, path)
 		}
 

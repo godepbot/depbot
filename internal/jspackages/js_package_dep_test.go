@@ -70,7 +70,7 @@ func Test_Package_SingleDependency(t *testing.T) {
 	}
 
 	if len(dependencies) != 6 {
-		t.Fatalf("got %v, but was expected %v", len(dependencies), 5)
+		t.Fatalf("got %v, but was expected %v", len(dependencies), 6)
 		return
 	}
 
@@ -200,6 +200,49 @@ func Test_Package_MultipleDependencies(t *testing.T) {
 		}
 	}
 
+}
+
+func Test_Files_With_Similar_Names(t *testing.T) {
+	tmpDir := t.TempDir()
+
+	errWriteFile := ioutil.WriteFile(tmpDir+"/package.json.Mac", []byte(fileContent), 0644)
+	if errWriteFile != nil {
+		t.Fatalf("got an error but should be nil, error : %v ", errWriteFile.Error())
+		return
+	}
+
+	newDirectoriesPath := tmpDir + "/package/v2"
+	packagePath := tmpDir + "/package"
+
+	err := os.MkdirAll(newDirectoriesPath, os.ModePerm)
+
+	if err != nil {
+		t.Fatalf("got an error but should be nil, error : %v ", err)
+		return
+	}
+
+	errWriteFile = ioutil.WriteFile(packagePath+"/Karo.package.json", []byte(fileContent), 0644)
+	if errWriteFile != nil {
+		t.Fatalf("got an error but should be nil, error : %v ", errWriteFile.Error())
+		return
+	}
+
+	errWriteFile = ioutil.WriteFile(newDirectoriesPath+"/package.json", []byte(secondFileContent), 0644)
+	if errWriteFile != nil {
+		t.Fatalf("got an error but should be nil, error : %v ", errWriteFile.Error())
+		return
+	}
+
+	dependencies, errFindDep := jspackages.FindPackageDependencies(tmpDir)
+	if errFindDep != nil {
+		t.Fatalf("got an error but should be nil, error : %v ", errWriteFile.Error())
+		return
+	}
+
+	if len(dependencies) != 4 {
+		t.Fatalf("got %v, but was expected %v", len(dependencies), 4)
+		return
+	}
 }
 
 func Test_Package_NoAnalize_If_Packagelock_Exist(t *testing.T) {
