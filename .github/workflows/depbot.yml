@@ -14,7 +14,7 @@ jobs:
           go-version: 1.18
 
       - name: Installing Depbot
-        run: |
+        run: |-
         wget https://github.com/godepbot/depbot/releases/latest/download/depbot_linux_amd64.tar.gz
         tar -xvzf depbot_linux_amd64.tar.gz
         sudo mv depbot /usr/local/bin/depbot
