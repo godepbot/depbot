@@ -15,7 +15,7 @@ func FindYarnDependencies(wd string) (depbot.Dependencies, error) {
 	pths := []string{}
 
 	filepath.WalkDir(wd, func(path string, d fs.DirEntry, err error) error {
-		if strings.HasSuffix(path, "/"+jsYarnLockFile) {
+		if filepath.Base(path) == jsYarnLockFile {
 			pths = append(pths, path)
 		}
 
