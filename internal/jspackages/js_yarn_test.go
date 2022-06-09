@@ -248,6 +248,50 @@ func Test_Yarn_MultipleDependencies(t *testing.T) {
 
 }
 
+func Test_Files_With_Similar_Yarn_Names(t *testing.T) {
+	tmpDir := t.TempDir()
+
+	errWriteFile := ioutil.WriteFile(tmpDir+"/yarn.lock.ll", []byte(yarnFile), 0644)
+	if errWriteFile != nil {
+		t.Fatalf("got an error but should be nil, error : %v ", errWriteFile.Error())
+		return
+	}
+
+	newDirectoriesPath := tmpDir + "/package/v2"
+	packagePath := tmpDir + "/package"
+
+	err := os.MkdirAll(newDirectoriesPath, os.ModePerm)
+
+	if err != nil {
+		t.Fatalf("got an error but should be nil, error : %v ", err)
+		return
+	}
+
+	errWriteFile = ioutil.WriteFile(packagePath+"/yarn.lock", []byte(yarnFile), 0644)
+	if errWriteFile != nil {
+		t.Fatalf("got an error but should be nil, error : %v ", errWriteFile.Error())
+		return
+	}
+
+	errWriteFile = ioutil.WriteFile(newDirectoriesPath+"/ll.yarn.lock", []byte(secondYarnFile), 0644)
+	if errWriteFile != nil {
+		t.Fatalf("got an error but should be nil, error : %v ", errWriteFile.Error())
+		return
+	}
+
+	dependencies, errFindDep := jspackages.FindYarnDependencies(tmpDir)
+	if errFindDep != nil {
+		t.Fatalf("got an error but should be nil, error : %v ", errWriteFile.Error())
+		return
+	}
+
+	if len(dependencies) != 6 {
+		t.Fatalf("got %v, but was expected %v", len(dependencies), 6)
+		return
+	}
+
+}
+
 func Test_Yarn_NoDependency(t *testing.T) {
 	tmp := t.TempDir()
 

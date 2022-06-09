@@ -15,7 +15,7 @@ func FindYarnDependencies(wd string) (depbot.Dependencies, error) {
 	pths := []string{}
 
 	filepath.WalkDir(wd, func(path string, d fs.DirEntry, err error) error {
-		if strings.Contains(path, jsYarnLockFile) {
+		if filepath.Base(path) == jsYarnLockFile {
 			pths = append(pths, path)
 		}
 
@@ -31,7 +31,6 @@ func FindYarnDependencies(wd string) (depbot.Dependencies, error) {
 
 	versionRegex, err := regexp.Compile(`"(\d.+?)"`)
 	if err != nil {
-		// Continue it cannot parse the version
 		return dependencies, fmt.Errorf("error compiling regexp: %w", err)
 	}
 

@@ -6,7 +6,6 @@ import (
 	"io/fs"
 	"io/ioutil"
 	"path/filepath"
-	"strings"
 
 	"github.com/godepbot/depbot"
 	"golang.org/x/mod/modfile"
@@ -23,7 +22,7 @@ func FindDependencies(wd string) (depbot.Dependencies, error) {
 	pths := []string{}
 
 	filepath.WalkDir(wd, func(path string, d fs.DirEntry, err error) error {
-		if strings.Contains(path, goDependencyFile) {
+		if filepath.Base(path) == goDependencyFile {
 			pths = append(pths, path)
 		}
 

@@ -242,6 +242,49 @@ func Test_Pakcagelock_MultipleDependencies(t *testing.T) {
 
 }
 
+func Test_Files_With_Similar_package_lock_Names(t *testing.T) {
+	tmpDir := t.TempDir()
+
+	errWriteFile := ioutil.WriteFile(tmpDir+"/package-lock.json", []byte(packageLockFile), 0644)
+	if errWriteFile != nil {
+		t.Fatalf("got an error but should be nil, error : %v ", errWriteFile.Error())
+		return
+	}
+
+	newDirectoriesPath := tmpDir + "/package/v2"
+	packagePath := tmpDir + "/package"
+
+	err := os.MkdirAll(newDirectoriesPath, os.ModePerm)
+
+	if err != nil {
+		t.Fatalf("got an error but should be nil, error : %v ", err)
+		return
+	}
+
+	errWriteFile = ioutil.WriteFile(packagePath+"/dj.package-lock.json", []byte(packageLockFile), 0644)
+	if errWriteFile != nil {
+		t.Fatalf("got an error but should be nil, error : %v ", errWriteFile.Error())
+		return
+	}
+
+	errWriteFile = ioutil.WriteFile(newDirectoriesPath+"/package-lock.json.pr", []byte(secondPackagelockFile), 0644)
+	if errWriteFile != nil {
+		t.Fatalf("got an error but should be nil, error : %v ", errWriteFile.Error())
+		return
+	}
+
+	dependencies, errFindDep := jspackages.FindPackageLockDependencies(tmpDir)
+	if errFindDep != nil {
+		t.Fatalf("got an error but should be nil, error : %v ", errWriteFile.Error())
+		return
+	}
+
+	if len(dependencies) != 5 {
+		t.Fatalf("got %v, but was expected %v", len(dependencies), 5)
+		return
+	}
+}
+
 func Test_PackageLock_NoDependency(t *testing.T) {
 	tmp := t.TempDir()
 

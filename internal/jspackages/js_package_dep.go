@@ -6,7 +6,6 @@ import (
 	"io/fs"
 	"io/ioutil"
 	"path/filepath"
-	"strings"
 
 	"github.com/godepbot/depbot"
 )
@@ -27,11 +26,11 @@ func FindPackageDependencies(wd string) (depbot.Dependencies, error) {
 	var hasPackageLockDeps bool
 
 	filepath.WalkDir(wd, func(path string, d fs.DirEntry, err error) error {
-		if strings.Contains(path, jsPackageLockFile) {
+		if filepath.Base(path) == jsPackageLockFile {
 			hasPackageLockDeps = true
 			return nil
 		}
-		if strings.Contains(path, jsPackageFile) {
+		if filepath.Base(path) == jsPackageFile {
 			pths = append(pths, path)
 		}
 
