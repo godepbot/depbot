@@ -14,4 +14,4 @@ jobs:
           tar -xvzf depbot_linux_amd64.tar.gz
           sudo mv depbot /usr/local/bin/depbot
       - name: Running Depbot
-        run: depbot list
+        run: depbot sync --api-key=${{secrets.DEPBOT_API_KEY }}
