@@ -32,6 +32,11 @@ func FindDependencies(wd string) (depbot.Dependencies, error) {
 	dependencies := depbot.Dependencies{}
 
 	for _, p := range pths {
+		relPath, _ := filepath.Rel(wd, p)
+		if relPath == "" {
+			relPath = goDependencyFile
+		}
+
 		d, err := ioutil.ReadFile(p)
 		if err != nil {
 			return dependencies, fmt.Errorf("error reading dependency file '%v': %w", p, err)
@@ -43,7 +48,7 @@ func FindDependencies(wd string) (depbot.Dependencies, error) {
 		}
 
 		dependencies = append(dependencies, depbot.Dependency{
-			File:     goDependencyFile,
+			File:     relPath,
 			Kind:     depbot.DependencyKindLanguage,
 			Language: depbot.DependencyLanguageGo,
 			Version:  f.Go.Version,
@@ -54,7 +59,7 @@ func FindDependencies(wd string) (depbot.Dependencies, error) {
 		for _, r := range f.Require {
 			dependencies = append(dependencies, depbot.Dependency{
 				Direct:   !r.Indirect,
-				File:     goDependencyFile,
+				File:     relPath,
 				Version:  r.Mod.Version,
 				Language: depbot.DependencyLanguageGo,
 				Kind:     depbot.DependencyKindLibrary,

@@ -35,13 +35,18 @@ func FindYarnDependencies(wd string) (depbot.Dependencies, error) {
 	}
 
 	for _, p := range pths {
+		relPath, _ := filepath.Rel(wd, p)
+		if relPath == "" {
+			relPath = jsYarnLockFile
+		}
+
 		openFile, err := ioutil.ReadFile(p)
 		if err != nil {
 			return dependencies, fmt.Errorf("error reading dependency file '%v': %w", p, err)
 		}
 
 		dependencies = append(dependencies, depbot.Dependency{
-			File:     jsYarnLockFile,
+			File:     relPath,
 			Kind:     depbot.DependencyKindLanguage,
 			Language: depbot.DependencyLanguageJs,
 			Name:     jsDependencyNameJs,
@@ -54,7 +59,7 @@ func FindYarnDependencies(wd string) (depbot.Dependencies, error) {
 		for _, line := range rawFile {
 			if strings.Contains(line, "lockfile") {
 				dependencies = append(dependencies, depbot.Dependency{
-					File:     jsYarnLockFile,
+					File:     relPath,
 					Kind:     depbot.DependencyKindTool,
 					Language: depbot.DependencyLanguageJs,
 					Name:     jsDependencyNameYARN,
@@ -76,7 +81,7 @@ func FindYarnDependencies(wd string) (depbot.Dependencies, error) {
 
 			if version != "" && name != "" {
 				dependencies = append(dependencies, depbot.Dependency{
-					File:     jsYarnLockFile,
+					File:     relPath,
 					Kind:     depbot.DependencyKindLibrary,
 					Language: depbot.DependencyLanguageJs,
 					Name:     strings.ReplaceAll(name, "\"", ""),
