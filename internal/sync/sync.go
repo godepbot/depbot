@@ -137,7 +137,6 @@ func (c *Command) SetIO(stderr io.Writer, stdout io.Writer, stdin io.Reader) {
 
 // NewCommand with the given finder function.
 func NewCommand(finders ...depbot.FinderFn) *Command {
-
 	// Setting default value for the server address in case
 	// its not set.
 	serverAddress := os.Getenv(DepbotServerAddr)
