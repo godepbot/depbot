@@ -27,8 +27,10 @@ func TestHelpCommand(t *testing.T) {
 			t.Fatalf("error running help: %v", err)
 		}
 
-		if !bytes.Contains(out.Bytes(), []byte("Usage: depbot [command] [options]")) {
-			t.Fatalf("expected output to contain 'Usage: depbot [command] [options]'")
+		fmt.Println("---> ", out.String())
+
+		if !bytes.Contains(out.Bytes(), []byte("depbot [command] [options]")) {
+			t.Fatalf("expected output to contain 'depbot [command] [options]'")
 		}
 
 		for _, v := range hc.Commands {
@@ -51,8 +53,8 @@ func TestHelpCommand(t *testing.T) {
 			t.Fatalf("Expected to print \"Error: did not find `unexisting` command\"")
 		}
 
-		if !bytes.Contains(out.Bytes(), []byte("Usage: depbot [command] [options]")) {
-			t.Fatalf("expected output to contain 'Usage: depbot [command] [options]'")
+		if !bytes.Contains(out.Bytes(), []byte("depbot [command] [options]")) {
+			t.Fatalf("expected output to contain 'depbot [command] [options]'")
 		}
 	})
 
