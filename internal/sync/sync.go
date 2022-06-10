@@ -67,9 +67,11 @@ func (c *Command) ParseFlags(args []string) (*flag.FlagSet, error) {
 		c.apiKey = os.Getenv(DepbotApiKey)
 	}
 
-	// Applying env if passed value was empty
-	if c.serverAddress == defaultServerAddress {
-		c.serverAddress = os.Getenv(DepbotServerAddr)
+	// Applying env if passed value was empty.
+	// IMPORTANT: We acknowledge that the server address flag will be
+	// overridden by the env variable if it is set to be the default.
+	if es := os.Getenv(DepbotServerAddr); c.serverAddress == defaultServerAddress && es != "" {
+		c.serverAddress = es
 	}
 
 	return c.flagSet, nil
