@@ -35,7 +35,8 @@ type Command struct {
 	stdout io.Writer
 	stdin  io.Reader
 
-	client *http.Client
+	client  *http.Client
+	flagSet *flag.FlagSet
 
 	apiKey        string
 	serverAddress string
@@ -56,20 +57,19 @@ func (c *Command) SetClient(client *http.Client) {
 }
 
 func (c *Command) ParseFlags(args []string) (*flag.FlagSet, error) {
-	flagSet := flag.NewFlagSet(c.Name(), flag.ContinueOnError)
+	_ = c.flagSet.Parse(args)
 
-	flagSet.StringVar(&c.apiKey, "api-key", c.apiKey, "[required] The API key for the repo. Can be specified with the DEPBOT_API_KEY environment variable.")
-	flagSet.StringVar(&c.serverAddress, "server-address", c.serverAddress, "The server address. Can be specified with the DEPBOT_SERVER_ADDR environment variable.")
+	// Applying env if apiKey is empty
+	if c.apiKey == "" {
+		c.apiKey = os.Getenv(DepbotApiKey)
+	}
 
-	// This is to keep it silent
-	flagSet.SetOutput(bytes.NewBuffer([]byte{}))
-	flagSet.Usage = func() {}
+	// Applying env if apiKey is empty
+	if c.serverAddress == "" {
+		c.serverAddress = os.Getenv(DepbotServerAddr)
+	}
 
-	// Ignore the error we don't care if any error happens while parsing.
-	_ = flagSet.Parse(args)
-
-	return flagSet, nil
-
+	return c.flagSet, nil
 }
 
 func (c *Command) Main(ctx context.Context, pwd string, args []string) error {
@@ -137,25 +137,24 @@ func (c *Command) SetIO(stderr io.Writer, stdout io.Writer, stdin io.Reader) {
 
 // NewCommand with the given finder function.
 func NewCommand(finders ...depbot.FinderFn) *Command {
-	// Setting default value for the server address in case
-	// its not set.
-	serverAddress := os.Getenv(DepbotServerAddr)
-	if serverAddress == "" {
-		serverAddress = "https://app.depbot.com/api/sync"
-	}
-
-	return &Command{
+	c := &Command{
 		finders: finders,
+		apiKey:  os.Getenv(DepbotApiKey),
 
-		apiKey:        os.Getenv(DepbotApiKey),
-		serverAddress: serverAddress,
-
-		//Setting the client to be the default http Client
-		client: http.DefaultClient,
-
-		// Setting the default revision finder to be the actual one
+		client:         http.DefaultClient,
 		revisionFinder: revision.FindLatestHash,
 	}
+
+	// Initializing the FlagSet that will pull the api-key and the server-address
+	fls := flag.NewFlagSet(c.Name(), flag.ContinueOnError)
+	fls.StringVar(&c.apiKey, "api-key", "", "[required] The API key for the repo. Can be specified with the DEPBOT_API_KEY environment variable.")
+	fls.StringVar(&c.serverAddress, "server-address", "https://app.depbot.com/api/sync", "The server address. Can be specified with the DEPBOT_SERVER_ADDR environment variable.")
+	fls.SetOutput(bytes.NewBuffer([]byte{}))
+	fls.Usage = func() {}
+
+	c.flagSet = fls
+
+	return c
 }
 
 // WithRevisionFinder is Useful for testing purposes so we can replace the
