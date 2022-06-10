@@ -215,5 +215,4 @@ func TestSyncCommand(t *testing.T) {
 			t.Errorf("expected output to contain '%v'", "FLAG")
 		}
 	})
-
 }

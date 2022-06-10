@@ -19,6 +19,9 @@ import (
 const (
 	DepbotApiKey     = "DEPBOT_API_KEY"
 	DepbotServerAddr = "DEPBOT_SERVER_ADDR"
+
+	// The default server address, could be changed with flags/env
+	defaultServerAddress = "https://app.depbot.com/api/sync"
 )
 
 var (
@@ -64,8 +67,8 @@ func (c *Command) ParseFlags(args []string) (*flag.FlagSet, error) {
 		c.apiKey = os.Getenv(DepbotApiKey)
 	}
 
-	// Applying env if apiKey is empty
-	if c.serverAddress == "" {
+	// Applying env if passed value was empty
+	if c.serverAddress == defaultServerAddress {
 		c.serverAddress = os.Getenv(DepbotServerAddr)
 	}
 
@@ -148,7 +151,7 @@ func NewCommand(finders ...depbot.FinderFn) *Command {
 	// Initializing the FlagSet that will pull the api-key and the server-address
 	fls := flag.NewFlagSet(c.Name(), flag.ContinueOnError)
 	fls.StringVar(&c.apiKey, "api-key", "", "[required] The API key for the repo. Can be specified with the DEPBOT_API_KEY environment variable.")
-	fls.StringVar(&c.serverAddress, "server-address", "https://app.depbot.com/api/sync", "The server address. Can be specified with the DEPBOT_SERVER_ADDR environment variable.")
+	fls.StringVar(&c.serverAddress, "server-address", defaultServerAddress, "The server address. Can be specified with the DEPBOT_SERVER_ADDR environment variable.")
 	fls.SetOutput(bytes.NewBuffer([]byte{}))
 	fls.Usage = func() {}
 
