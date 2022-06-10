@@ -56,13 +56,10 @@ func (c *Command) SetClient(client *http.Client) {
 }
 
 func (c *Command) ParseFlags(args []string) (*flag.FlagSet, error) {
-	beforeApiKey := c.apiKey
-	beforeServerAddress := c.serverAddress
-
 	flagSet := flag.NewFlagSet(c.Name(), flag.ContinueOnError)
 
-	flagSet.StringVar(&c.apiKey, "api-key", "", "[required] The API key for the repo. Can be specified with the DEPBOT_API_KEY environment variable.")
-	flagSet.StringVar(&c.serverAddress, "server-address", "http://app.depbot.com/api/sync", "The server address. Can be specified with the DEPBOT_SERVER_ADDR environment variable.")
+	flagSet.StringVar(&c.apiKey, "api-key", c.apiKey, "[required] The API key for the repo. Can be specified with the DEPBOT_API_KEY environment variable.")
+	flagSet.StringVar(&c.serverAddress, "server-address", c.serverAddress, "The server address. Can be specified with the DEPBOT_SERVER_ADDR environment variable.")
 
 	// This is to keep it silent
 	flagSet.SetOutput(bytes.NewBuffer([]byte{}))
@@ -70,14 +67,6 @@ func (c *Command) ParseFlags(args []string) (*flag.FlagSet, error) {
 
 	// Ignore the error we don't care if any error happens while parsing.
 	_ = flagSet.Parse(args)
-
-	if c.apiKey == "" {
-		c.apiKey = beforeApiKey
-	}
-
-	if c.serverAddress == "" {
-		c.serverAddress = beforeServerAddress
-	}
 
 	return flagSet, nil
 
@@ -148,11 +137,19 @@ func (c *Command) SetIO(stderr io.Writer, stdout io.Writer, stdin io.Reader) {
 
 // NewCommand with the given finder function.
 func NewCommand(finders ...depbot.FinderFn) *Command {
+
+	// Setting default value for the server address in case
+	// its not set.
+	serverAddress := os.Getenv(DepbotServerAddr)
+	if serverAddress == "" {
+		serverAddress = "http://app.depbot.com/api/sync"
+	}
+
 	return &Command{
 		finders: finders,
 
 		apiKey:        os.Getenv(DepbotApiKey),
-		serverAddress: os.Getenv(DepbotServerAddr),
+		serverAddress: serverAddress,
 
 		//Setting the client to be the default http Client
 		client: http.DefaultClient,
