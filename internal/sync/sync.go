@@ -57,6 +57,7 @@ func (c *Command) SetClient(client *http.Client) {
 
 func (c *Command) ParseFlags(args []string) (*flag.FlagSet, error) {
 	beforeApiKey := c.apiKey
+	beforeServerAddress := c.serverAddress
 
 	flagSet := flag.NewFlagSet(c.Name(), flag.ContinueOnError)
 
@@ -72,6 +73,10 @@ func (c *Command) ParseFlags(args []string) (*flag.FlagSet, error) {
 
 	if c.apiKey == "" {
 		c.apiKey = beforeApiKey
+	}
+
+	if c.serverAddress == "" {
+		c.serverAddress = beforeServerAddress
 	}
 
 	return flagSet, nil
