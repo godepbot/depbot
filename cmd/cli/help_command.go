@@ -40,21 +40,21 @@ func (c HelpCommand) Main(ctx context.Context, pwd string, args []string) error 
 
 //general method prints the
 func (c HelpCommand) general() error {
-	fmt.Fprint(c.Stdout(), "Usage: depbot [command] [options]\n\n")
+	fmt.Fprint(c.Stdout(), "\nUsage:\n")
+	fmt.Fprint(c.Stdout(), "  depbot [command] [options]\n\n")
 
 	// If there are no commands it just prints the usage.
 	if len(c.Commands) == 0 {
 		return nil
 	}
 
-	fmt.Fprintln(c.Stdout(), "Available Commands:")
+	fmt.Fprint(c.Stdout(), "Available Commands:\n\n")
+	fmt.Fprint(c.Stdout(), "Command\n")
+
 	for _, v := range c.Commands {
 		if ht, ok := v.(HelpTexter); ok {
 			text := ht.HelpText()
-			if len(text) > 70 {
-				text = text[0:70] + "..."
-			}
-			fmt.Fprintf(c.Stdout(), "%v\t%v\n", v.Name(), text)
+			fmt.Fprintf(c.Stdout(), "  %v\t\t%v\n", v.Name(), text)
 			continue
 		}
 
@@ -62,7 +62,7 @@ func (c HelpCommand) general() error {
 	}
 
 	fmt.Fprintln(c.Stdout(), "\nFor command specific information use the help command, p.e.")
-	fmt.Fprintln(c.Stdout(), "$ depbot help [command]")
+	fmt.Fprint(c.Stdout(), "$ depbot help [command]\n\n")
 
 	return nil
 }
