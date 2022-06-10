@@ -19,6 +19,9 @@ import (
 const (
 	DepbotApiKey     = "DEPBOT_API_KEY"
 	DepbotServerAddr = "DEPBOT_SERVER_ADDR"
+
+	// The default server address, could be changed with flags/env
+	defaultServerAddress = "https://app.depbot.com/api/sync"
 )
 
 var (
@@ -35,7 +38,8 @@ type Command struct {
 	stdout io.Writer
 	stdin  io.Reader
 
-	client *http.Client
+	client  *http.Client
+	flagSet *flag.FlagSet
 
 	apiKey        string
 	serverAddress string
@@ -56,26 +60,21 @@ func (c *Command) SetClient(client *http.Client) {
 }
 
 func (c *Command) ParseFlags(args []string) (*flag.FlagSet, error) {
-	beforeApiKey := c.apiKey
+	_ = c.flagSet.Parse(args)
 
-	flagSet := flag.NewFlagSet(c.Name(), flag.ContinueOnError)
-
-	flagSet.StringVar(&c.apiKey, "api-key", "", "[required] The API key for the repo. Can be specified with the DEPBOT_API_KEY environment variable.")
-	flagSet.StringVar(&c.serverAddress, "server-address", "http://app.depbot.com/api/sync", "The server address. Can be specified with the DEPBOT_SERVER_ADDR environment variable.")
-
-	// This is to keep it silent
-	flagSet.SetOutput(bytes.NewBuffer([]byte{}))
-	flagSet.Usage = func() {}
-
-	// Ignore the error we don't care if any error happens while parsing.
-	_ = flagSet.Parse(args)
-
+	// Applying env if apiKey is empty
 	if c.apiKey == "" {
-		c.apiKey = beforeApiKey
+		c.apiKey = os.Getenv(DepbotApiKey)
 	}
 
-	return flagSet, nil
+	// Applying env if passed value was empty.
+	// IMPORTANT: We acknowledge that the server address flag will be
+	// overridden by the env variable if it is set to be the default.
+	if es := os.Getenv(DepbotServerAddr); c.serverAddress == defaultServerAddress && es != "" {
+		c.serverAddress = es
+	}
 
+	return c.flagSet, nil
 }
 
 func (c *Command) Main(ctx context.Context, pwd string, args []string) error {
@@ -143,18 +142,24 @@ func (c *Command) SetIO(stderr io.Writer, stdout io.Writer, stdin io.Reader) {
 
 // NewCommand with the given finder function.
 func NewCommand(finders ...depbot.FinderFn) *Command {
-	return &Command{
+	c := &Command{
 		finders: finders,
+		apiKey:  os.Getenv(DepbotApiKey),
 
-		apiKey:        os.Getenv(DepbotApiKey),
-		serverAddress: os.Getenv(DepbotServerAddr),
-
-		//Setting the client to be the default http Client
-		client: http.DefaultClient,
-
-		// Setting the default revision finder to be the actual one
+		client:         http.DefaultClient,
 		revisionFinder: revision.FindLatestHash,
 	}
+
+	// Initializing the FlagSet that will pull the api-key and the server-address
+	fls := flag.NewFlagSet(c.Name(), flag.ContinueOnError)
+	fls.StringVar(&c.apiKey, "api-key", "", "[required] The API key for the repo. Can be specified with the DEPBOT_API_KEY environment variable.")
+	fls.StringVar(&c.serverAddress, "server-address", defaultServerAddress, "The server address. Can be specified with the DEPBOT_SERVER_ADDR environment variable.")
+	fls.SetOutput(bytes.NewBuffer([]byte{}))
+	fls.Usage = func() {}
+
+	c.flagSet = fls
+
+	return c
 }
 
 // WithRevisionFinder is Useful for testing purposes so we can replace the
