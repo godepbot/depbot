@@ -27,8 +27,6 @@ func TestHelpCommand(t *testing.T) {
 			t.Fatalf("error running help: %v", err)
 		}
 
-		fmt.Println("---> ", out.String())
-
 		if !bytes.Contains(out.Bytes(), []byte("depbot [command] [options]")) {
 			t.Fatalf("expected output to contain 'depbot [command] [options]'")
 		}

@@ -75,9 +75,9 @@ func Test_Package_SingleDependency(t *testing.T) {
 		return
 	}
 
-	for _, dependencie := range dependencies {
-		if dependencie.Language != depbot.DependencyLanguageJs {
-			t.Fatalf("got %v, but was expected %v", dependencie.Language, depbot.DependencyLanguageJs)
+	for _, dependency := range dependencies {
+		if dependency.Language != depbot.DependencyLanguageJs {
+			t.Fatalf("got %v, but was expected %v", dependency.Language, depbot.DependencyLanguageJs)
 		}
 	}
 
@@ -309,4 +309,34 @@ func Test_Package_NoDependency(t *testing.T) {
 		t.Fatalf("got %v, but was expected %v", len(dependencies), 0)
 	}
 
+}
+
+func Test_Package_Dep_Relative_Path_Check(t *testing.T) {
+	tmpDir := t.TempDir()
+
+	packagePath := tmpDir + "/routecheck"
+
+	err := os.MkdirAll(packagePath, os.ModePerm)
+	if err != nil {
+		t.Fatalf("got an error but should be nil, error : %v ", err)
+		return
+	}
+
+	errWriteFile := ioutil.WriteFile(packagePath+"/package.json", []byte(fileContent), 0644)
+	if errWriteFile != nil {
+		t.Fatalf("got an error but should be nil, error : %v ", errWriteFile.Error())
+		return
+	}
+
+	dependencies, errFindDep := jspackages.FindPackageDependencies(tmpDir)
+	if errFindDep != nil {
+		t.Fatalf("got an error but should be nil, error : %v ", errWriteFile.Error())
+		return
+	}
+
+	for _, dependency := range dependencies {
+		if dependency.File != "routecheck/package.json" {
+			t.Fatalf("file expected to be in 'routecheck/package.json'")
+		}
+	}
 }
