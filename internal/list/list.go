@@ -87,19 +87,23 @@ func (c *Command) SetIO(stderr io.Writer, stdout io.Writer, stdin io.Reader) {
 
 // NewCommand with the given finder function.
 func NewCommand(finders ...depbot.FinderFn) *Command {
-	return &Command{
+	c := &Command{
 		finders: finders,
 	}
+
+	fls := flag.NewFlagSet(c.Name(), flag.ContinueOnError)
+	fls.StringVar(&c.output, "output", "plain", "Output format. Can be plain, json or csv.")
+
+	// This is to keep it silent
+	fls.SetOutput(bytes.NewBuffer([]byte{}))
+	fls.Usage = func() {}
+
+	c.flagSet = fls
+
+	return c
 }
 
 func (c *Command) ParseFlags(args []string) (*flag.FlagSet, error) {
-	c.flagSet = flag.NewFlagSet(c.Name(), flag.ContinueOnError)
-	c.flagSet.StringVar(&c.output, "output", "plain", "Output format. Can be plain, json or csv.")
-
-	// This is to keep it silent
-	c.flagSet.SetOutput(bytes.NewBuffer([]byte{}))
-	c.flagSet.Usage = func() {}
-
 	// Ignore the error we don't care if any error happens while parsing.
 	_ = c.flagSet.Parse(args)
 
