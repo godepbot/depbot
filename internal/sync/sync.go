@@ -142,7 +142,7 @@ func NewCommand(finders ...depbot.FinderFn) *Command {
 	// its not set.
 	serverAddress := os.Getenv(DepbotServerAddr)
 	if serverAddress == "" {
-		serverAddress = "http://app.depbot.com/api/sync"
+		serverAddress = "https://app.depbot.com/api/sync"
 	}
 
 	return &Command{
