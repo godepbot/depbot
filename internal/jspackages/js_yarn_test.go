@@ -312,5 +312,34 @@ func Test_Yarn_NoDependency(t *testing.T) {
 	if len(dependencies) > 0 {
 		t.Fatalf("got %v, but was expected %v", len(dependencies), 0)
 	}
+}
 
+func Test_Yarn_Relative_Path_Check(t *testing.T) {
+	tmpDir := t.TempDir()
+
+	packagePath := tmpDir + "/routecheck"
+
+	err := os.MkdirAll(packagePath, os.ModePerm)
+	if err != nil {
+		t.Fatalf("got an error but should be nil, error : %v ", err)
+		return
+	}
+
+	errWriteFile := ioutil.WriteFile(packagePath+"/yarn.lock", []byte(yarnFile), 0644)
+	if errWriteFile != nil {
+		t.Fatalf("got an error but should be nil, error : %v ", errWriteFile.Error())
+		return
+	}
+
+	dependencies, errFindDep := jspackages.FindYarnDependencies(tmpDir)
+	if errFindDep != nil {
+		t.Fatalf("got an error but should be nil, error : %v ", errWriteFile.Error())
+		return
+	}
+
+	for _, dependency := range dependencies {
+		if dependency.File != "routecheck/yarn.lock" {
+			t.Fatalf("file expected to be in 'routecheck/yarn.lock'")
+		}
+	}
 }

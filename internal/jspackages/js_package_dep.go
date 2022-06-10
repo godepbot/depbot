@@ -36,7 +36,6 @@ func FindPackageDependencies(wd string) (depbot.Dependencies, error) {
 
 		return nil
 	})
-
 	dependencies := depbot.Dependencies{}
 
 	if hasPackageLockDeps {
@@ -44,6 +43,11 @@ func FindPackageDependencies(wd string) (depbot.Dependencies, error) {
 	}
 
 	for _, p := range pths {
+		relPath, _ := filepath.Rel(wd, p)
+		if relPath == "" {
+			relPath = jsPackageFile
+		}
+
 		openFile, err := ioutil.ReadFile(p)
 		if err != nil {
 			return dependencies, fmt.Errorf("error reading dependency file '%v': %w", p, err)
@@ -54,22 +58,22 @@ func FindPackageDependencies(wd string) (depbot.Dependencies, error) {
 		if errU != nil {
 			return dependencies, fmt.Errorf("error parsing dependency file '%v': %w", p, errU)
 		}
-		dependencies = append(dependencies, packageDependencies(packageJson)...)
+		dependencies = append(dependencies, packageDependencies(packageJson, relPath)...)
 	}
 
 	return dependencies, nil
 }
 
-func packageDependencies(p PackageJson) depbot.Dependencies {
+func packageDependencies(p PackageJson, file string) depbot.Dependencies {
 	dependencies := depbot.Dependencies{
 		{
-			File:     jsPackageFile,
+			File:     file,
 			Kind:     depbot.DependencyKindTool,
 			Language: depbot.DependencyLanguageJs,
 			Name:     jsDependencyNameNPM,
 		},
 		{
-			File:     jsPackageFile,
+			File:     file,
 			Kind:     depbot.DependencyKindLanguage,
 			Language: depbot.DependencyLanguageJs,
 			Name:     jsDependencyNameJs,
@@ -82,7 +86,7 @@ func packageDependencies(p PackageJson) depbot.Dependencies {
 			Direct:   true,
 			Kind:     depbot.DependencyKindLibrary,
 			Language: depbot.DependencyLanguageJs,
-			File:     jsPackageFile,
+			File:     file,
 			Name:     d,
 			Version:  p.Dependencies[d],
 		})
@@ -90,7 +94,7 @@ func packageDependencies(p PackageJson) depbot.Dependencies {
 
 	for d := range p.DevDependencies {
 		dependencies = append(dependencies, depbot.Dependency{
-			File:     jsPackageFile,
+			File:     file,
 			Kind:     depbot.DependencyKindLibrary,
 			Language: depbot.DependencyLanguageJs,
 			Name:     d,
