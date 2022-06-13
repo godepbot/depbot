@@ -27,7 +27,7 @@ func PathsFor(wd string, filesNames ...string) []string {
 }
 
 func PathContainsFolder(path, folderName string) bool {
-	for _, name := range strings.Split(path, "/") {
+	for _, name := range strings.Split(path, string(filepath.Separator)) {
 		if name == folderName {
 			return true
 		}
