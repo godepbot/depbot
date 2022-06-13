@@ -2,25 +2,17 @@ package jspackages
 
 import (
 	"fmt"
-	"io/fs"
 	"io/ioutil"
 	"path/filepath"
 	"regexp"
 	"strings"
 
 	"github.com/godepbot/depbot"
+	"github.com/godepbot/depbot/internal"
 )
 
 func FindYarnDependencies(wd string) (depbot.Dependencies, error) {
-	pths := []string{}
-
-	filepath.WalkDir(wd, func(path string, d fs.DirEntry, err error) error {
-		if filepath.Base(path) == jsYarnLockFile {
-			pths = append(pths, path)
-		}
-
-		return nil
-	})
+	pths := internal.PathsFor(wd, jsYarnLockFile)
 
 	dependencies := depbot.Dependencies{}
 

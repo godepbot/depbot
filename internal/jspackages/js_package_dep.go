@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/godepbot/depbot"
+	"github.com/godepbot/depbot/internal"
 )
 
 type PackageJson struct {
@@ -26,6 +27,10 @@ func FindPackageDependencies(wd string) (depbot.Dependencies, error) {
 	var hasPackageLockDeps bool
 
 	filepath.WalkDir(wd, func(path string, d fs.DirEntry, err error) error {
+		if internal.PathContainsFolder(path, "node_modules") {
+			return nil
+		}
+
 		if filepath.Base(path) == jsPackageLockFile {
 			hasPackageLockDeps = true
 			return nil
@@ -36,6 +41,7 @@ func FindPackageDependencies(wd string) (depbot.Dependencies, error) {
 
 		return nil
 	})
+
 	dependencies := depbot.Dependencies{}
 
 	if hasPackageLockDeps {
