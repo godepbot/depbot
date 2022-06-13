@@ -3,11 +3,11 @@ package jspackages
 import (
 	"encoding/json"
 	"fmt"
-	"io/fs"
 	"io/ioutil"
 	"path/filepath"
 
 	"github.com/godepbot/depbot"
+	"github.com/godepbot/depbot/internal"
 )
 
 type PackageLockJson struct {
@@ -18,15 +18,7 @@ type PackageLockJson struct {
 }
 
 func FindPackageLockDependencies(wd string) (depbot.Dependencies, error) {
-	pths := []string{}
-
-	filepath.WalkDir(wd, func(path string, d fs.DirEntry, err error) error {
-		if filepath.Base(path) == jsPackageLockFile {
-			pths = append(pths, path)
-		}
-
-		return nil
-	})
+	pths := internal.PathsFor(wd, jsPackageLockFile)
 
 	dependencies := depbot.Dependencies{}
 	for _, p := range pths {
