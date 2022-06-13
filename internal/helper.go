@@ -11,7 +11,7 @@ func PathsFor(wd string, filesNames ...string) []string {
 
 	filepath.WalkDir(wd, func(path string, d fs.DirEntry, err error) error {
 		for _, fileName := range filesNames {
-			if strings.Contains(path, "node_modules") {
+			if PathContainsFolder(path, "node_modules") {
 				continue
 			}
 
@@ -24,4 +24,14 @@ func PathsFor(wd string, filesNames ...string) []string {
 	})
 
 	return pths
+}
+
+func PathContainsFolder(path, folderName string) bool {
+	for _, name := range strings.Split(path, "/") {
+		if name == folderName {
+			return true
+		}
+	}
+
+	return false
 }
