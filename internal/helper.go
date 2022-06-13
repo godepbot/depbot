@@ -6,11 +6,11 @@ import (
 	"strings"
 )
 
-func PathsFor(wd string, filesNames ...string) []string {
+func PathsFor(wd string, fileNames ...string) []string {
 	pths := []string{}
 
 	filepath.WalkDir(wd, func(path string, d fs.DirEntry, err error) error {
-		for _, fileName := range filesNames {
+		for _, fileName := range fileNames {
 			if PathContainsFolder(path, "node_modules") {
 				continue
 			}
