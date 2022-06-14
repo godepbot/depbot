@@ -9,7 +9,7 @@ Depbot is a CLI tool that identifies dependencies in a given source code reposit
 
 ## Installation
 
-To install the Depbot agent you can download to download a precompiled binary from [GitHub](github.com/godepbot/depbot/releases).
+To install the Depbot agent you can download to download a precompiled binary from [GitHub](https://github.com/godepbot/depbot/releases).
 
 ### MacOS
 
@@ -38,8 +38,8 @@ $ mv depbot ~/bin/depbot
 ### Linux
 
 ```
-$ wget https://github.com/godepbot/depbot/releases/latest/download/depbot_linux_arm64.tar.gz
-$ tar -xvzf depbot_linux_arm64.tar.gz
+$ wget https://github.com/godepbot/depbot/releases/latest/download/depbot_linux_amd64.tar.gz
+$ tar -xvzf depbot_linux_amd64.tar.gz
 $ sudo mv depbot /usr/local/bin/depbot
 ```
 
@@ -132,3 +132,37 @@ Success! 50 Dependencies synchronized.
 ```
 
 The HTTPS schema will be prepend to the address if it is missing.
+
+## GitHub Actions
+
+Github Action tool can be used to configure Depbot to run automatically on every branch or commit pushed to the repository.
+
+Create a `.github/workflows/workflow.yml` file in your repository.
+
+Within that file add the following instructions to trigger your workflow whenever a commit is pushed to the repository:
+
+```sh
+name: Depbot
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Installing Depbot
+        run: |
+          wget https://github.com/godepbot/depbot/releases/latest/download/depbot_linux_amd64.tar.gz
+          tar -xvzf depbot_linux_amd64.tar.gz
+          sudo mv depbot /usr/local/bin/depbot
+      - name: Running Depbot
+        run: depbot list
+```
+
+Now on every time you push your commit to the repository, it will automatically trigger the action.
+
+On your repository's page, inside the the Actions tab. You should be able to see the workflow listed.
+
+<img src="githubaction_preview.png">
