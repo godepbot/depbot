@@ -50,12 +50,13 @@ func FindYarnDependencies(wd string) (depbot.Dependencies, error) {
 
 		for _, line := range rawFile {
 			if strings.Contains(line, "lockfile") {
+				sLine := strings.Split(line, " ")
 				dependencies = append(dependencies, depbot.Dependency{
 					File:     relPath,
 					Kind:     depbot.DependencyKindTool,
 					Language: depbot.DependencyLanguageJs,
 					Name:     jsDependencyNameYARN,
-					Version:  strings.TrimSpace(strings.ReplaceAll(line, "#", "")),
+					Version:  sLine[len(sLine)-1],
 				})
 				continue
 			}
