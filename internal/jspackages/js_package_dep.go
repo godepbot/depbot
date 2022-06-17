@@ -3,7 +3,6 @@ package jspackages
 import (
 	"encoding/json"
 	"fmt"
-	"io/fs"
 	"io/ioutil"
 	"path/filepath"
 
@@ -23,31 +22,34 @@ type PackageJson struct {
 }
 
 func FindPackageDependencies(wd string) (depbot.Dependencies, error) {
-	pths := []string{}
-	var hasPackageLockDeps bool
 
-	filepath.WalkDir(wd, func(path string, d fs.DirEntry, err error) error {
-		if internal.PathContainsFolder(path, "node_modules") {
-			return nil
-		}
+	allPths := internal.PathsFor(wd, []string{jsPackageLockFile, jsPackageFile}...)
+	dirTree := map[string][]string{}
 
-		if filepath.Base(path) == jsPackageLockFile {
-			hasPackageLockDeps = true
-			return nil
-		}
-		if filepath.Base(path) == jsPackageFile {
-			pths = append(pths, path)
-		}
-
-		return nil
-	})
-
-	dependencies := depbot.Dependencies{}
-
-	if hasPackageLockDeps {
-		return dependencies, nil
+	for _, path := range allPths {
+		dir := filepath.Dir(path)
+		dirTree[dir] = append(dirTree[dir], path)
 	}
 
+	pths := []string{}
+	for _, files := range dirTree {
+		existLockFileInTree := false
+		packageFiles := []string{}
+		for _, file := range files {
+			if filepath.Base(file) == jsPackageFile {
+				packageFiles = append(packageFiles, file)
+			}
+			if filepath.Base(file) == jsPackageLockFile {
+				existLockFileInTree = true
+			}
+		}
+
+		if !existLockFileInTree {
+			pths = append(pths, packageFiles...)
+		}
+	}
+
+	dependencies := depbot.Dependencies{}
 	for _, p := range pths {
 		relPath, _ := filepath.Rel(wd, p)
 		if relPath == "" {

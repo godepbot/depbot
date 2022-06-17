@@ -154,7 +154,7 @@ func Test_Package_MultipleDependencies(t *testing.T) {
 
 	dependencies, errFindDep := jspackages.FindPackageDependencies(tmpDir)
 	if errFindDep != nil {
-		t.Fatalf("got an error but should be nil, error : %v ", errWriteFile.Error())
+		t.Fatalf("got an error but should be nil, error : %v ", errFindDep.Error())
 		return
 	}
 
@@ -242,55 +242,12 @@ func Test_Files_With_Similar_Names(t *testing.T) {
 
 	dependencies, errFindDep := jspackages.FindPackageDependencies(tmpDir)
 	if errFindDep != nil {
-		t.Fatalf("got an error but should be nil, error : %v ", errWriteFile.Error())
+		t.Fatalf("got an error but should be nil, error : %v ", errFindDep.Error())
 		return
 	}
 
 	if len(dependencies) != 4 {
 		t.Fatalf("got %v, but was expected %v", len(dependencies), 4)
-		return
-	}
-}
-
-func Test_Package_NoAnalize_If_Packagelock_Exist(t *testing.T) {
-	tmpDir := t.TempDir()
-
-	errWriteFile := ioutil.WriteFile(tmpDir+"/package.json", []byte(fileContent), 0644)
-	if errWriteFile != nil {
-		t.Fatalf("got an error but should be nil, error : %v ", errWriteFile.Error())
-		return
-	}
-
-	newDirectoriesPath := tmpDir + "/package/v2"
-	packagePath := tmpDir + "/package"
-
-	err := os.MkdirAll(newDirectoriesPath, os.ModePerm)
-
-	if err != nil {
-		t.Fatalf("got an error but should be nil, error : %v ", err)
-		return
-	}
-
-	errWriteFile = ioutil.WriteFile(packagePath+"/package-lock.json", []byte(fileContent), 0644)
-	if errWriteFile != nil {
-		t.Fatalf("got an error but should be nil, error : %v ", errWriteFile.Error())
-		return
-	}
-
-	errWriteFile = ioutil.WriteFile(newDirectoriesPath+"/package.json", []byte(secondFileContent), 0644)
-	if errWriteFile != nil {
-		t.Fatalf("got an error but should be nil, error : %v ", errWriteFile.Error())
-		return
-	}
-
-	dependencies, errFindDep := jspackages.FindPackageDependencies(tmpDir)
-	if errFindDep != nil {
-		t.Fatalf("got an error but should be nil, error : %v ", errWriteFile.Error())
-		return
-	}
-
-	if len(dependencies) != 0 {
-		t.Fatalf("got %v, but was expected %v", len(dependencies), 0)
 		return
 	}
 }
@@ -330,13 +287,64 @@ func Test_Package_Dep_Relative_Path_Check(t *testing.T) {
 
 	dependencies, errFindDep := jspackages.FindPackageDependencies(tmpDir)
 	if errFindDep != nil {
-		t.Fatalf("got an error but should be nil, error : %v ", errWriteFile.Error())
+		t.Fatalf("got an error but should be nil, error : %v ", errFindDep.Error())
 		return
 	}
 
 	for _, dependency := range dependencies {
 		if dependency.File != "routecheck/package.json" {
 			t.Fatalf("file expected to be in 'routecheck/package.json'")
+		}
+	}
+}
+
+func Test_Package_NoAnalize_If_Packagelock_Exist_At_Same_Folder_Level(t *testing.T) {
+	tmpDir := t.TempDir()
+
+	directoryPaths := []string{
+		tmpDir + "/package/",
+		tmpDir + "/package/v2/",
+		tmpDir + "/package/v3/",
+	}
+
+	for _, path := range directoryPaths {
+		err := os.MkdirAll(path, os.ModePerm)
+		if err != nil {
+			t.Fatalf("got an error but should be nil, error : %v ", err)
+			return
+		}
+	}
+
+	files := []string{
+		tmpDir + "/package/package.json",
+		tmpDir + "/package/v2/package-lock.json",
+		tmpDir + "/package/v2/package.json",
+		tmpDir + "/package/v3/package.json",
+		tmpDir + "/package/v3/package-lock.json",
+	}
+
+	for _, fileName := range files {
+		errWriteFile := ioutil.WriteFile(fileName, []byte(secondFileContent), 0644)
+		if errWriteFile != nil {
+			t.Fatalf("got an error but should be nil, error : %v ", errWriteFile.Error())
+		}
+	}
+
+	dependencies, errFindDep := jspackages.FindPackageDependencies(tmpDir)
+	if errFindDep != nil {
+		t.Fatalf("got an error but should be nil, error : %v ", errFindDep.Error())
+		return
+	}
+
+	if len(dependencies) != 4 {
+		t.Fatalf("got %v, but was expected %v", len(dependencies), 0)
+		return
+	}
+
+	for _, dependency := range dependencies {
+		if dependency.File != "package/package.json" {
+			t.Fatalf("got %v, but was expected %v", dependency.File, "package/package.json")
+			return
 		}
 	}
 }
