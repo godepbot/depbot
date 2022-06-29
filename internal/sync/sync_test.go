@@ -35,8 +35,12 @@ func TestSyncCommand(t *testing.T) {
 		return dd, nil
 	}
 
-	fakeRevisionFinder := func(string) (string, error) {
+	fakeRevisionFinderHash := func(string) (string, error) {
 		return "0de1b3e18d9cd5cd96b12e608ca47eff046fed0a", nil
+	}
+
+	fakeRevisionFinderBranch := func(string) (string, error) {
+		return "main", nil
 	}
 
 	fkServer := fakeServer{
@@ -64,7 +68,7 @@ func TestSyncCommand(t *testing.T) {
 
 		out := bytes.NewBuffer([]byte{})
 		c := sync.NewCommand(fakeFinder)
-		c.WithRevisionFinder(fakeRevisionFinder)
+		c.WithRevisionFinder(fakeRevisionFinderHash, fakeRevisionFinderBranch)
 
 		c.SetIO(out, out, nil)
 		c.SetClient(server.Client())
@@ -84,9 +88,14 @@ func TestSyncCommand(t *testing.T) {
 			t.Errorf("expected output to contain '%v'", "SETWITHENV")
 		}
 
-		hash, _ := fakeRevisionFinder("")
+		hash, _ := fakeRevisionFinderHash("")
 		if fkServer.receivedRequest.Header.Get("X-Revision-Hash") != hash {
 			t.Errorf("expected output to contain '%v'", hash)
+		}
+
+		branch, _ := fakeRevisionFinderBranch("")
+		if fkServer.receivedRequest.Header.Get("X-Revision-Branch") != branch {
+			t.Errorf("expected output to contain '%v'", branch)
 		}
 
 	})
@@ -99,7 +108,7 @@ func TestSyncCommand(t *testing.T) {
 			fakeFinder,
 			fakeFinder,
 		)
-		c.WithRevisionFinder(fakeRevisionFinder)
+		c.WithRevisionFinder(fakeRevisionFinderHash, fakeRevisionFinderBranch)
 
 		c.SetIO(out, out, nil)
 		c.SetClient(server.Client())
@@ -119,10 +128,16 @@ func TestSyncCommand(t *testing.T) {
 			t.Errorf("expected output to contain '%v'", "MULTIPLEAPIKEY")
 		}
 
-		hash, _ := fakeRevisionFinder("")
+		hash, _ := fakeRevisionFinderHash("")
 		if fkServer.receivedRequest.Header.Get("X-Revision-Hash") != hash {
 			t.Errorf("expected output to contain '%v'", hash)
 		}
+
+		branch, _ := fakeRevisionFinderBranch("")
+		if fkServer.receivedRequest.Header.Get("X-Revision-Branch") != branch {
+			t.Errorf("expected output to contain '%v'", branch)
+		}
+
 	})
 
 	t.Run("No API KEY", func(t *testing.T) {
@@ -133,7 +148,7 @@ func TestSyncCommand(t *testing.T) {
 
 		c.SetIO(out, out, nil)
 		c.SetClient(server.Client())
-		c.WithRevisionFinder(fakeRevisionFinder)
+		c.WithRevisionFinder(fakeRevisionFinderHash, fakeRevisionFinderBranch)
 
 		c.ParseFlags([]string{"--server-address", server.URL})
 
@@ -149,7 +164,7 @@ func TestSyncCommand(t *testing.T) {
 
 		c.SetIO(out, out, nil)
 		c.SetClient(server.Client())
-		c.WithRevisionFinder(fakeRevisionFinder)
+		c.WithRevisionFinder(fakeRevisionFinderHash, fakeRevisionFinderBranch)
 
 		c.ParseFlags([]string{"--server-address", server.URL, "--api-key", "SETWITHFLAG"})
 
@@ -167,9 +182,14 @@ func TestSyncCommand(t *testing.T) {
 			t.Errorf("expected output to contain '%v'", "SETWITHFLAG")
 		}
 
-		hash, _ := fakeRevisionFinder("")
+		hash, _ := fakeRevisionFinderHash("")
 		if fkServer.receivedRequest.Header.Get("X-Revision-Hash") != hash {
 			t.Errorf("expected output to contain '%v'", hash)
+		}
+
+		branch, _ := fakeRevisionFinderBranch("")
+		if fkServer.receivedRequest.Header.Get("X-Revision-Branch") != branch {
+			t.Errorf("expected output to contain '%v'", branch)
 		}
 	})
 
@@ -181,7 +201,7 @@ func TestSyncCommand(t *testing.T) {
 
 		c.SetIO(out, out, nil)
 		c.SetClient(server.Client())
-		c.WithRevisionFinder(fakeRevisionFinder)
+		c.WithRevisionFinder(fakeRevisionFinderHash, fakeRevisionFinderBranch)
 		c.ParseFlags([]string{"--server-address", server.URL, "--api-key", "SETWITHFLAG"})
 
 		err := c.Main(context.Background(), "", []string{})
@@ -199,7 +219,7 @@ func TestSyncCommand(t *testing.T) {
 
 		c.SetIO(out, out, nil)
 		c.SetClient(server.Client())
-		c.WithRevisionFinder(fakeRevisionFinder)
+		c.WithRevisionFinder(fakeRevisionFinderHash, fakeRevisionFinderBranch)
 		c.ParseFlags([]string{"--server-address", server.URL, "--api-key", "FLAG"})
 
 		err := c.Main(context.Background(), "", []string{})
