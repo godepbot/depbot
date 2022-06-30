@@ -44,7 +44,8 @@ type Command struct {
 	apiKey        string
 	serverAddress string
 
-	revisionFinder func(string) (string, error)
+	revisionFinderHash   func(string) (string, error)
+	revisionFinderBranch func(string) (string, error)
 }
 
 func (c *Command) Name() string {
@@ -107,7 +108,12 @@ func (c *Command) Main(ctx context.Context, pwd string, args []string) error {
 	}
 
 	// Finding current revision hash
-	hash, err := c.revisionFinder(pwd)
+	hash, err := c.revisionFinderHash(pwd)
+	if err != nil {
+		return err
+	}
+
+	branch, err := c.revisionFinderBranch(pwd)
 	if err != nil {
 		return err
 	}
@@ -115,6 +121,7 @@ func (c *Command) Main(ctx context.Context, pwd string, args []string) error {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", c.apiKey))
 	req.Header.Set("X-Revision-Hash", hash)
+	req.Header.Set("X-Revision-Branch", branch)
 	req.Header.Set("X-Timestamp", fmt.Sprintf("%v", time.Now().Unix()))
 
 	resp, err := c.client.Do(req)
@@ -146,8 +153,9 @@ func NewCommand(finders ...depbot.FinderFn) *Command {
 		finders: finders,
 		apiKey:  os.Getenv(DepbotApiKey),
 
-		client:         http.DefaultClient,
-		revisionFinder: revision.FindLatestHash,
+		client:               http.DefaultClient,
+		revisionFinderHash:   revision.FindLatestHash,
+		revisionFinderBranch: revision.FindBranchName,
 	}
 
 	// Initializing the FlagSet that will pull the api-key and the server-address
@@ -164,6 +172,8 @@ func NewCommand(finders ...depbot.FinderFn) *Command {
 
 // WithRevisionFinder is Useful for testing purposes so we can replace the
 // Revision finder
-func (s *Command) WithRevisionFinder(finder func(string) (string, error)) {
-	s.revisionFinder = finder
+func (s *Command) WithRevisionFinder(finderHash, finderBranch func(string) (string, error)) {
+
+	s.revisionFinderHash = finderHash
+	s.revisionFinderBranch = finderBranch
 }

@@ -30,6 +30,26 @@ func FindLatestHash(pwd string) (string, error) {
 	return "", fmt.Errorf("oops! No hash available")
 }
 
+func FindBranchName(pwd string) (string, error) {
+	headData, err := readHead(pwd)
+	if err != nil {
+		return "", err
+	}
+
+	/// HEAD points to a branch that is the current branch.
+	if strings.Contains(headData, "refs/") {
+		components := strings.Split(headData, "/")
+		return components[len(components)-1], nil
+	}
+
+	/// HEAD points to a commit in particular.
+	if len(headData) > 0 {
+		return "checked commit", nil
+	}
+
+	return "", fmt.Errorf("oops! No branch name available")
+}
+
 func readHead(pwd string) (string, error) {
 	headPath := filepath.Join(pwd, gitDirectory, "HEAD")
 	bytes, err := os.ReadFile(headPath)
