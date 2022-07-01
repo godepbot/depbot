@@ -1,0 +1,17 @@
+name: Depbot
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Installing Depbot
+        run: |
+          wget https://github.com/godepbot/depbot/releases/latest/download/depbot_linux_amd64.tar.gz
+          tar -xvzf depbot_linux_amd64.tar.gz
+          sudo mv depbot /usr/local/bin/depbot
+      - name: Running Depbot
+        run: depbot sync --api-key=${{secrets.DEPBOT_API_KEY }}
