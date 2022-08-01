@@ -44,7 +44,7 @@ func FindBranchName(pwd string) (string, error) {
 
 	/// HEAD points to a commit in particular.
 	if len(headData) > 0 {
-		return "checked commit", nil
+		return headData, nil
 	}
 
 	return "", fmt.Errorf("oops! No branch name available")
